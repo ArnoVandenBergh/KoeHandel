@@ -208,6 +208,20 @@
         }
 
         [TestMethod]
+        public void PlaceBid_LastRemainingBidderWhileBidIsLargerThanZero_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.SkipBid(auction.CurrentBidder));
+            Assert.AreEqual("The auction has passed the bidding phase", exception.Message);
+        }
+
+        [TestMethod]
         public void SkipBid_NotCurrentBidder_InvalidOperation()
         {
             // Arrange
@@ -248,6 +262,34 @@
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => oldAuction.SkipBid(_game.GetNextPlayer()));
             Assert.AreEqual($"This auction is not currently active.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SkipBid_LastRemainingBidderWhileBidIsLargerThanZero_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.SkipBid(auction.CurrentBidder);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.SkipBid(auction.CurrentBidder));
+            Assert.AreEqual("The auction has passed the bidding phase", exception.Message);
+        }
+
+        [TestMethod]
+        public void SkipBid_AllBiddersSkip_NoException()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.SkipBid(auction.CurrentBidder));
+            Assert.AreEqual("The auction has passed the bidding phase", exception.Message);
         }
 
         [TestMethod]
