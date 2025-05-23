@@ -295,13 +295,71 @@
         [TestMethod]
         public void BuyOverAuction_StillBidding_InvalidOperation()
         {
+            // Arrange
             _game.StartGame();
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
+
             // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.EndAuction(true));
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.MoveToMoneyTransferPhase(auction.Auctioneer, true));
             Assert.AreEqual("The auction is still in progress.", exception.Message);
         }
 
+        [TestMethod]
+        public void BuyOverAuction_MovedPassedBuyoverPhase_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, false);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.MoveToMoneyTransferPhase(auction.Auctioneer, true));
+            Assert.AreEqual($"The auction is passed the buyover phase.", exception.Message);
+        }
+
+        [TestMethod]
+        public void BuyOverAuction_PlayerIsNotAuctioneer_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.SkipBid(auction.CurrentBidder);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.MoveToMoneyTransferPhase(auction.LastBidder!, true));
+            Assert.AreEqual($"The auctioneer (\"{auction.Auctioneer.Name}\") must be the one to move to the money transfer phase.", exception.Message);
+        }
+
+        [TestMethod]
+        public void BuyOverAuction_AuctioneerNoBuyOver_NoException()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, false);
+
+            Assert.AreEqual(AuctionState.MoneyTransferPhase, auction.AuctionState);
+            Assert.IsFalse(auction.DidActioneerBuyOver);
+        }
+
+        [TestMethod]
+        public void BuyOverAuction_AuctioneerBuyOver_NoException()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+
+            Assert.AreEqual(AuctionState.MoneyTransferPhase, auction.AuctionState);
+            Assert.IsTrue(auction.DidActioneerBuyOver);
+        }
     }
 }

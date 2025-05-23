@@ -12,7 +12,6 @@
         public AnimalCard AnimalCard { get; set; } = animalCard;
         public Player? LastBidder { get; set; }
         public Player Auctioneer { get; set; } = auctioneer;
-
         public int Bid { get; set; }
         public List<MoneyValues>? MoneyTransfer { get; set; }
         public bool DidActioneerBuyOver { get; set; }
@@ -21,14 +20,23 @@
         public List<Player> Bidders { get; set; } = game.Players.Where(p => p.Id != auctioneer.Id).ToList();
         public Player CurrentBidder { get; set; } = game.GetNextPlayer();
 
-
-        //TODO: think of a better name
-        public void EndAuction(bool AuctioneerBuyOver)
+        public void MoveToMoneyTransferPhase(Player auctioneer, bool AuctioneerBuyOver)
         {
-            if (Bidders.Count > 0)
+            if ((int)AuctionState < (int)AuctionState.BuyOverPhase)
             {
                 throw new InvalidOperationException("The auction is still in progress.");
             }
+            if ((int)AuctionState > (int)AuctionState.BuyOverPhase)
+            {
+                throw new InvalidOperationException("The auction is passed the buyover phase.");
+            }
+            if (auctioneer.Id != Auctioneer.Id)
+            {
+                throw new InvalidOperationException($"The auctioneer (\"{Auctioneer.Name}\") must be the one to move to the money transfer phase.");
+            }
+
+            DidActioneerBuyOver = AuctioneerBuyOver;
+            AuctionState = AuctionState.MoneyTransferPhase;
         }
 
         public void PlaceBid(Player bidder, int bid)
