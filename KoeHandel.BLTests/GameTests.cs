@@ -77,7 +77,7 @@
         {
             // Arrange
             _game.StartGame();
-            var notCurrentPlayer = _game.GetNextPlayer();
+            var notCurrentPlayer = _game.Players.First(player => player.Id != _game.CurrentPlayer.Id);
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewAuction(notCurrentPlayer));
             Assert.AreEqual($"It's not {notCurrentPlayer.Name}'s turn to start an auction.", exception.Message);
@@ -109,7 +109,13 @@
             // Arrange
             _game.StartGame();
 
-            // TODO: as soon the logic is in place to empty the deck, this test should be updated
+            int count = _game.AnimalDeck.Animals.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var auction = _game.StartNewAuction(_game.CurrentPlayer);
+                auction.SkipBid(auction.CurrentBidder);
+                auction.SkipBid(auction.CurrentBidder);
+            }
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewAuction(_game.CurrentPlayer));
@@ -138,8 +144,7 @@
             // Arrange
             _game.StartGame();
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
-            var bidder = _game.GetNextPlayer();
-            var notCurrentBidder = _game.Players.First(p => p.Id != bidder.Id && p.Id != auction.Auctioneer.Id);
+            var notCurrentBidder = _game.Players.First(p => p.Id != auction.CurrentBidder.Id && p.Id != auction.Auctioneer.Id);
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PlaceBid(notCurrentBidder, 10));
@@ -159,19 +164,18 @@
             Assert.AreEqual($"The auctioneer (\"{auctioneer.Name}\") can't place a bid.", exception.Message);
         }
 
+
         [TestMethod]
         public void PlaceBid_AuctionIsNoLongerCurrentGameAction_InvalidOperation()
         {
-            //TODO: as soon the logic is in place to start a second gameaction, this test should be updated
-
             // Arrange
             _game.StartGame();
             var oldAuction = _game.StartNewAuction(_game.CurrentPlayer);
-            var newAuction = _game.StartNewAuction(_game.CurrentPlayer);
-
+            oldAuction.SkipBid(oldAuction.CurrentBidder);
+            oldAuction.SkipBid(oldAuction.CurrentBidder);
 
             // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => oldAuction.PlaceBid(_game.GetNextPlayer(), 10));
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => oldAuction.PlaceBid(oldAuction.CurrentBidder, 10));
             Assert.AreEqual($"This auction is not currently active.", exception.Message);
         }
 
@@ -227,8 +231,7 @@
             // Arrange
             _game.StartGame();
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
-            var bidder = _game.GetNextPlayer();
-            var notCurrentBidder = _game.Players.First(p => p.Id != bidder.Id && p.Id != auction.Auctioneer.Id);
+            var notCurrentBidder = _game.Players.First(p => p.Id != auction.CurrentBidder.Id && p.Id != auction.Auctioneer.Id);
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.SkipBid(notCurrentBidder));
@@ -251,16 +254,14 @@
         [TestMethod]
         public void SkipBid_AuctionIsNoLongerCurrentGameAction_InvalidOperation()
         {
-            //TODO: as soon the logic is in place to start a second gameaction, this test should be updated
-
             // Arrange
             _game.StartGame();
             var oldAuction = _game.StartNewAuction(_game.CurrentPlayer);
-            var newAuction = _game.StartNewAuction(_game.CurrentPlayer);
-
+            oldAuction.SkipBid(oldAuction.CurrentBidder);
+            oldAuction.SkipBid(oldAuction.CurrentBidder);
 
             // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => oldAuction.SkipBid(_game.GetNextPlayer()));
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => oldAuction.SkipBid(oldAuction.CurrentBidder));
             Assert.AreEqual($"This auction is not currently active.", exception.Message);
         }
 
@@ -279,7 +280,7 @@
         }
 
         [TestMethod]
-        public void SkipBid_AllBiddersSkip_NoException()
+        public void SkipBid_AllBiddersSkip_AuctionFinished()
         {
             // Arrange
             _game.StartGame();
@@ -287,9 +288,10 @@
             auction.SkipBid(auction.CurrentBidder);
             auction.SkipBid(auction.CurrentBidder);
 
-            // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.SkipBid(auction.CurrentBidder));
-            Assert.AreEqual("The auction has passed the bidding phase", exception.Message);
+            // Assert
+            Assert.AreEqual(AuctionState.Finished, auction.AuctionState);
+            Assert.AreEqual(0, auction.Bid);
+            Assert.IsNull(auction.LastBidder);
         }
 
         [TestMethod]
@@ -360,6 +362,157 @@
 
             Assert.AreEqual(AuctionState.MoneyTransferPhase, auction.AuctionState);
             Assert.IsTrue(auction.DidActioneerBuyOver);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_PayerIsNotLastBidder_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 30);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+            var notLastBidder = _game.Players.First(p => p.Id != auction.LastBidder!.Id && p.Id != auction.Auctioneer.Id);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(notLastBidder, auction.Auctioneer, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"Player \"{notLastBidder.Name}\" is not the payer.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_PayeeIsNotLastBidder_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 30);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+            var notLastBidder = _game.Players.First(p => p.Id != auction.LastBidder!.Id && p.Id != auction.Auctioneer.Id);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.Auctioneer, notLastBidder, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"Player \"{notLastBidder.Name}\" is not the payee.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_PayerIsNotAuctioneerAndPayeeIsNotLastBidder_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 30);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, false);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.Auctioneer, auction.LastBidder!, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"Payer and Payee are reversed.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_PayeeIsNotAuctioneerAndPayerIsNotLastBidder_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 30);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.LastBidder!, auction.Auctioneer, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"Payer and Payee are reversed.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_NotInMoneyTransferPhase_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.LastBidder!, auction.Auctioneer, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"The auction is not in the money transfer phase.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_PayerIsSamePlayerAsPayee_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 30);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.Auctioneer, auction.Auctioneer, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"Payer and Payee cannot be the same player.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_CashIsLowerThanBid_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 40);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.Auctioneer, auction.LastBidder!, [MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten]));
+            Assert.AreEqual($"Total cash ({30}) must be at least equal to the bid ({40}).", exception.Message);
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_BalanceIsToLittle_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 100);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => auction.PerformAuctionTransfer(auction.Auctioneer, auction.LastBidder!, [MoneyValues.Fifty, MoneyValues.Fifty]));
+            Assert.AreEqual($"Payer does not have enough of Fifty to transfer.", exception.Message);
+            Assert.IsTrue(auction.Auctioneer.Balance.Contains(MoneyValues.Fifty));
+        }
+
+        [TestMethod]
+        public void AuctionTransfer_HappyFlow_MoneyAndCardTranferHappened()
+        {
+            // Arrange
+            _game.StartGame();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.PlaceBid(auction.CurrentBidder, 10);
+            auction.PlaceBid(auction.CurrentBidder, 20);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, true);
+            List<MoneyValues> expectedPayerBalance = [MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty];
+            List<MoneyValues> expectedPayeeBalance = [MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty];
+
+            // Act
+            auction.PerformAuctionTransfer(auction.Auctioneer, auction.LastBidder!, [MoneyValues.Ten, MoneyValues.Ten]);
+
+            // Assert
+            CollectionAssert.AreEquivalent(expectedPayerBalance, auction.Auctioneer.Balance);
+            CollectionAssert.AreEquivalent(expectedPayeeBalance, auction.LastBidder!.Balance);
+            Assert.AreEqual(AuctionState.Finished, auction.AuctionState);
+            Assert.IsTrue(auction.Auctioneer.AnimalCards.Contains(auction.AnimalCard));
+            Assert.IsNull(_game.CurrentGameAction);
         }
     }
 }

@@ -13,12 +13,21 @@
         public Player? LastBidder { get; set; }
         public Player Auctioneer { get; set; } = auctioneer;
         public int Bid { get; set; }
-        public List<MoneyValues>? MoneyTransfer { get; set; }
+        public List<MoneyValues>? MoneyTransfer { get; set; } = null;
         public bool DidActioneerBuyOver { get; set; }
         public AuctionState AuctionState { get; set; } = AuctionState.BidPhase;
         public Game Game { get; set; } = game;
         public List<Player> Bidders { get; set; } = game.Players.Where(p => p.Id != auctioneer.Id).ToList();
         public Player CurrentBidder { get; set; } = game.GetNextPlayer();
+
+        internal override void MoveToFinishedState()
+        {
+            if (MoneyTransfer == null)
+            {
+                throw new InvalidOperationException("Money transfer must be set before finishing the auction.");
+            }
+            AuctionState = AuctionState.Finished;
+        }
 
         public void MoveToMoneyTransferPhase(Player auctioneer, bool AuctioneerBuyOver)
         {
@@ -37,6 +46,61 @@
 
             DidActioneerBuyOver = AuctioneerBuyOver;
             AuctionState = AuctionState.MoneyTransferPhase;
+        }
+
+        public void PerformAuctionTransfer(Player payer, Player payee, List<MoneyValues> cash)
+        {
+
+            if (AuctionState != AuctionState.MoneyTransferPhase)
+            {
+                throw new InvalidOperationException("The auction is not in the money transfer phase.");
+            }
+            if (payer.Id != LastBidder!.Id && payer.Id != Auctioneer.Id)
+            {
+                throw new InvalidOperationException($"Player \"{payer.Name}\" is not the payer.");
+            }
+            if (payer.Id == payee.Id)
+            {
+                throw new InvalidOperationException($"Payer and Payee cannot be the same player.");
+            }
+            if (payee.Id != LastBidder!.Id && payee.Id != Auctioneer.Id)
+            {
+                throw new InvalidOperationException($"Player \"{payee.Name}\" is not the payee.");
+            }
+            if (DidActioneerBuyOver == (payer.Id != Auctioneer.Id))
+            {
+                throw new InvalidOperationException($"Payer and Payee are reversed.");
+            }
+            int totalCash = cash.Aggregate(0, (total, value) => total + (int)value);
+            if (totalCash < Bid)
+            {
+                throw new InvalidOperationException($"Total cash ({totalCash}) must be at least equal to the bid ({Bid}).");
+            }
+
+            List<MoneyValues> payerBalance = [.. payer.Balance];
+            foreach (var value in cash)
+            {
+                int index = payerBalance.IndexOf(value);
+                if (index != -1)
+                {
+                    payerBalance.RemoveAt(index);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Payer does not have enough of {value} to transfer.");
+                }
+            }
+
+            foreach (var value in cash)
+            {
+                payer.Balance.Remove(value);
+            }
+
+            payee.Balance.AddRange(cash);
+            payer.AnimalCards.Add(AnimalCard);
+            MoneyTransfer = cash;
+            Game.EndCurrentGameAction();
+
         }
 
         public void PlaceBid(Player bidder, int bid)
@@ -64,14 +128,14 @@
 
             LastBidder = bidder;
             Bid = bid;
+            CurrentBidder = GetNextBidder();
+            Console.WriteLine($"Player \"{bidder.Name}\" has placed a bid of {Bid}.");
 
             if (Bidders.Count == 1 && Bid > 0)
             {
                 AuctionState = AuctionState.BuyOverPhase;
-                return;
             }
 
-            CurrentBidder = _GetNextBidder();
         }
 
         public void SkipBid(Player bidder)
@@ -93,23 +157,23 @@
                 throw new InvalidOperationException($"It's not {bidder.Name}'s turn to bid.");
             }
 
-            if (Bidders.Count == 2 && Bid > 0)
+            CurrentBidder = GetNextBidder();
+            Bidders.Remove(bidder);
+            Console.WriteLine($"Player \"{bidder.Name}\" has skipped their bid.");
+
+            if (Bidders.Count == 1 && Bid > 0)
             {
                 AuctionState = AuctionState.BuyOverPhase;
-                return;
             }
-            if (Bidders.Count == 1 && Bid == 0)
+            if (Bidders.Count == 0 && Bid == 0)
             {
-                AuctionState = AuctionState.Finished;
                 DidActioneerBuyOver = true;
                 MoneyTransfer = [];
-                return;
+                Game.EndCurrentGameAction();
             }
-            CurrentBidder = _GetNextBidder();
-            Bidders.Remove(bidder);
         }
 
-        private Player _GetNextBidder()
+        private Player GetNextBidder()
         {
             var currentPlayerIndex = Bidders.IndexOf(CurrentBidder);
             int nextIndex = (currentPlayerIndex + 1) % Bidders.Count;

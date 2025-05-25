@@ -1,8 +1,9 @@
 ﻿namespace KoeHandel.BL
 {
-    public class GameAction
+    public abstract class GameAction
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        internal abstract void MoveToFinishedState();
     }
     public class Game
     {
@@ -93,7 +94,19 @@
             return auction;
         }
 
-        public Player GetNextPlayer()
+        internal void EndCurrentGameAction()
+        {
+            if (CurrentGameAction == null)
+            {
+                throw new InvalidOperationException("No game action is currently in progress.");
+            }
+            Console.WriteLine($"Ending game action: {CurrentGameAction.GetType().Name}");
+            CurrentGameAction.MoveToFinishedState();
+            CurrentGameAction = null;
+            CurrentPlayer = GetNextPlayer();
+        }
+
+        internal Player GetNextPlayer()
         {
             var currentPlayerIndex = Players.IndexOf(CurrentPlayer);
             int nextIndex = (currentPlayerIndex + 1) % Players.Count;
