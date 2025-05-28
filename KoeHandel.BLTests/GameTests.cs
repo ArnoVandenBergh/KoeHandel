@@ -514,5 +514,163 @@
             Assert.IsTrue(auction.Auctioneer.AnimalCards.Contains(auction.AnimalCard));
             Assert.IsNull(_game.CurrentGameAction);
         }
+
+        [TestMethod]
+        public void StartNewTrade_NotCurrentPlayer_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var notCurrentPlayer = _game.Players.First(player => player.Id != _game.CurrentPlayer.Id);
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewTrade(notCurrentPlayer, _game.CurrentPlayer, _game.AnimalDeck!.Animals.Peek(), []));
+            Assert.AreEqual($"It's not {notCurrentPlayer.Name}'s turn to start a trade.", exception.Message);
+        }
+
+        [TestMethod]
+        public void StartNewTrade_GameDidNotStartYet_InvalidOperation()
+        {
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                _game.StartNewTrade(_player1, _player2, new AnimalCard(new Animal("Schaap", 1)), []));
+            Assert.AreEqual("The game is not in progress.", exception.Message);
+        }
+
+        [TestMethod]
+        public void StartNewTrade_ActionAlreadyInProgress_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            _game.StartNewAuction(_game.CurrentPlayer);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                _game.StartNewTrade(_game.CurrentPlayer, _game.Players.First(p => p.Id != _game.CurrentPlayer.Id), animalCard, []));
+            Assert.AreEqual("A game action is already in progress.", exception.Message);
+        }
+
+        [TestMethod]
+        public void StartNewTrade_BuyerDoesntHaveTheAnimalCard_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var buyer = _game.CurrentPlayer;
+            var seller = _game.Players.First(p => p.Id != buyer.Id);
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                _game.StartNewTrade(buyer, seller, animalCard, []));
+            Assert.AreEqual($"Player \"{buyer.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
+        }
+
+        [TestMethod]
+        public void StartNewTrade_SellerDoesntHaveTheAnimalCard_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var buyer = _game.CurrentPlayer;
+
+            // buyer gets animal card through auction
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+
+            // buyer places a bid and gets card
+            var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+            secondAuction.PlaceBid(buyer, 10);
+            secondAuction.MoveToMoneyTransferPhase(secondAuction.Auctioneer, false);
+            secondAuction.PerformAuctionTransfer(buyer, secondAuction.Auctioneer, [MoneyValues.Ten]);
+
+            // buyer places a bid and gets card
+            var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            thirdAuction.PlaceBid(buyer, 10);
+            thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+            thirdAuction.MoveToMoneyTransferPhase(thirdAuction.Auctioneer, false);
+            thirdAuction.PerformAuctionTransfer(buyer, thirdAuction.Auctioneer, [MoneyValues.Ten]);
+
+            var seller = _game.Players.First(p => p.Id != buyer.Id);
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                _game.StartNewTrade(buyer, seller, animalCard, []));
+            Assert.AreEqual($"Player \"{seller.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
+        }
+
+        [TestMethod]
+        public void StartNewTrade_BuyerDoesntHaveEnoughMoney_InvalidOperation()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var buyer = _game.CurrentPlayer;
+            var seller = _game.Players.First(p => p.Id != buyer.Id);
+
+            // Buyer gets animal card through auction
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+
+            while (!seller.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            {
+                // Ensure seller has the animal card
+                var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+                secondAuction.SkipBid(secondAuction.CurrentBidder);
+                secondAuction.SkipBid(secondAuction.CurrentBidder);
+            }
+
+            while (_game.CurrentPlayer != buyer)
+            {
+                var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
+                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+            }
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                _game.StartNewTrade(buyer, seller, animalCard, [MoneyValues.Fifty, MoneyValues.Fifty]));
+            Assert.AreEqual($"Player \"{buyer.Name}\" does not have enough money for the proposed trade offer for animal card {animalCard.Animal.Name}.", exception.Message);
+        }
+
+        [TestMethod]
+        public void StartNewTrade_HappyFlow_NoException()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var buyer = _game.CurrentPlayer;
+            var seller = _game.Players.First(p => p.Id != buyer.Id);
+
+            // Buyer gets animal card through auction
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+
+            while (!seller.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            {
+                // Ensure seller has the animal card
+                var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+                secondAuction.SkipBid(secondAuction.CurrentBidder);
+                secondAuction.SkipBid(secondAuction.CurrentBidder);
+            }
+
+            while (_game.CurrentPlayer != buyer)
+            {
+                var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
+                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+            }
+
+            // Act
+            var trade = _game.StartNewTrade(buyer, seller, animalCard, [MoneyValues.Ten, MoneyValues.Fifty]);
+
+            // Assert
+            Assert.AreEqual(buyer, trade.Buyer);
+            Assert.AreEqual(seller, trade.Seller);
+            Assert.AreEqual(animalCard, trade.AnimalCard);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Ten, MoneyValues.Fifty }, trade.Offer);
+        }
     }
 }

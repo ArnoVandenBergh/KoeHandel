@@ -77,24 +77,8 @@
                 throw new InvalidOperationException($"Total cash ({totalCash}) must be at least equal to the bid ({Bid}).");
             }
 
-            List<MoneyValues> payerBalance = [.. payer.Balance];
-            foreach (var value in cash)
-            {
-                int index = payerBalance.IndexOf(value);
-                if (index != -1)
-                {
-                    payerBalance.RemoveAt(index);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Payer does not have enough of {value} to transfer.");
-                }
-            }
-
-            foreach (var value in cash)
-            {
-                payer.Balance.Remove(value);
-            }
+            ValidatePlayerHasEnoughCash(payer, cash);
+            RemoveCashFromPlayer(payer, cash);
 
             payee.Balance.AddRange(cash);
             payer.AnimalCards.Add(AnimalCard);
@@ -169,6 +153,7 @@
             {
                 DidActioneerBuyOver = true;
                 MoneyTransfer = [];
+                Auctioneer.AnimalCards.Add(AnimalCard);
                 Game.EndCurrentGameAction();
             }
         }

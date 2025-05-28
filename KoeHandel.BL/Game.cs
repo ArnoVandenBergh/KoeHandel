@@ -4,6 +4,30 @@
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         internal abstract void MoveToFinishedState();
+        internal static void ValidatePlayerHasEnoughCash(Player player, List<MoneyValues> cash)
+        {
+            List<MoneyValues> payerBalance = [.. player.Balance];
+            foreach (var value in cash)
+            {
+                int index = payerBalance.IndexOf(value);
+                if (index != -1)
+                {
+                    payerBalance.RemoveAt(index);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Payer does not have enough of {value} to transfer.");
+                }
+            }
+        }
+
+        internal static void RemoveCashFromPlayer(Player player, List<MoneyValues> cash)
+        {
+            foreach (var value in cash)
+            {
+                player.Balance.Remove(value);
+            }
+        }
     }
     public class Game
     {
@@ -92,6 +116,50 @@
             CurrentGameAction = auction;
             Console.WriteLine($"Player \"{auctioneer.Name}\" has started an auction for the {animalCard.Animal.Name}.");
             return auction;
+        }
+
+        public Trade StartNewTrade(Player buyer, Player seller, AnimalCard animalCard, List<MoneyValues> offer)
+        {
+            if (_state != GameState.InProgress)
+            {
+                throw new InvalidOperationException("The game is not in progress.");
+            }
+            if (CurrentPlayer != buyer)
+            {
+                throw new InvalidOperationException($"It's not {buyer.Name}'s turn to start a trade.");
+            }
+            if (CurrentGameAction != null)
+            {
+                throw new InvalidOperationException("A game action is already in progress.");
+            }
+            if (!buyer.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            {
+                throw new InvalidOperationException($"Player \"{buyer.Name}\" does not have the animal card {animalCard.Animal.Name}.");
+            }
+            if (!seller.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            {
+                throw new InvalidOperationException($"Player \"{seller.Name}\" does not have the animal card {animalCard.Animal.Name}.");
+            }
+            try
+            {
+                GameAction.ValidatePlayerHasEnoughCash(buyer, offer);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException($"Player \"{buyer.Name}\" does not have enough money for the proposed trade offer for animal card {animalCard.Animal.Name}.");
+            }
+
+            var trade = new Trade(buyer, seller, animalCard, offer);
+            Trades.Add(trade);
+            CurrentGameAction = trade;
+            Console.WriteLine($"Player \"{buyer.Name}\" has started a trade with {seller.Name} for the {animalCard.Animal.Name}.");
+            return trade;
+        }
+
+        internal void SortDeck()
+        {
+            var orderedDeck = AnimalDeck!.Animals.OrderBy(c => c.Animal.Name);
+            AnimalDeck!.Animals = new Queue<AnimalCard>(orderedDeck);
         }
 
         internal void EndCurrentGameAction()
