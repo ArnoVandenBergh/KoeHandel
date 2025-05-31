@@ -284,14 +284,18 @@
         {
             // Arrange
             _game.StartGame();
+            var auctioneer = _game.CurrentPlayer;
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
+
+            // Act
             auction.SkipBid(auction.CurrentBidder);
 
             // Assert
             Assert.AreEqual(AuctionState.Finished, auction.AuctionState);
             Assert.AreEqual(0, auction.Bid);
             Assert.IsNull(auction.LastBidder);
+            Assert.IsTrue(auctioneer.AnimalCards.Any(c => c == auction.AnimalCard));
         }
 
         [TestMethod]
@@ -522,7 +526,7 @@
             _game.StartGame();
             var notCurrentPlayer = _game.Players.First(player => player.Id != _game.CurrentPlayer.Id);
             // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewTrade(notCurrentPlayer, _game.CurrentPlayer, _game.AnimalDeck!.Animals.Peek(), []));
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewTrade(notCurrentPlayer, _game.CurrentPlayer, _game.AnimalDeck!.Animals.Peek()));
             Assert.AreEqual($"It's not {notCurrentPlayer.Name}'s turn to start a trade.", exception.Message);
         }
 
@@ -531,7 +535,7 @@
         {
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-                _game.StartNewTrade(_player1, _player2, new AnimalCard(new Animal("Schaap", 1)), []));
+                _game.StartNewTrade(_player1, _player2, new AnimalCard(new Animal("Schaap", 1))));
             Assert.AreEqual("The game is not in progress.", exception.Message);
         }
 
@@ -545,92 +549,56 @@
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-                _game.StartNewTrade(_game.CurrentPlayer, _game.Players.First(p => p.Id != _game.CurrentPlayer.Id), animalCard, []));
+                _game.StartNewTrade(_game.CurrentPlayer, _game.Players.First(p => p.Id != _game.CurrentPlayer.Id), animalCard));
             Assert.AreEqual("A game action is already in progress.", exception.Message);
         }
 
         [TestMethod]
-        public void StartNewTrade_BuyerDoesntHaveTheAnimalCard_InvalidOperation()
+        public void StartNewTrade_InitiatorDoesntHaveTheAnimalCard_InvalidOperation()
         {
             // Arrange
             _game.StartGame();
             var animalCard = _game.AnimalDeck!.Animals.Peek();
-            var buyer = _game.CurrentPlayer;
-            var seller = _game.Players.First(p => p.Id != buyer.Id);
+            var initiator = _game.CurrentPlayer;
+            var responder = _game.Players.First(p => p.Id != initiator.Id);
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-                _game.StartNewTrade(buyer, seller, animalCard, []));
-            Assert.AreEqual($"Player \"{buyer.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
+                _game.StartNewTrade(initiator, responder, animalCard));
+            Assert.AreEqual($"Player \"{initiator.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
         }
 
         [TestMethod]
-        public void StartNewTrade_SellerDoesntHaveTheAnimalCard_InvalidOperation()
+        public void StartNewTrade_ResponderDoesntHaveTheAnimalCard_InvalidOperation()
         {
             // Arrange
             _game.StartGame();
             var animalCard = _game.AnimalDeck!.Animals.Peek();
-            var buyer = _game.CurrentPlayer;
+            var initiator = _game.CurrentPlayer;
 
-            // buyer gets animal card through auction
+            // initiator gets animal card through auction
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
             auction.SkipBid(auction.CurrentBidder);
 
-            // buyer places a bid and gets card
+            // initiator places a bid and gets card
             var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
             secondAuction.SkipBid(secondAuction.CurrentBidder);
-            secondAuction.PlaceBid(buyer, 10);
+            secondAuction.PlaceBid(initiator, 10);
             secondAuction.MoveToMoneyTransferPhase(secondAuction.Auctioneer, false);
-            secondAuction.PerformAuctionTransfer(buyer, secondAuction.Auctioneer, [MoneyValues.Ten]);
+            secondAuction.PerformAuctionTransfer(initiator, secondAuction.Auctioneer, [MoneyValues.Ten]);
 
-            // buyer places a bid and gets card
+            // initiator places a bid and gets card
             var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
-            thirdAuction.PlaceBid(buyer, 10);
+            thirdAuction.PlaceBid(initiator, 10);
             thirdAuction.SkipBid(thirdAuction.CurrentBidder);
             thirdAuction.MoveToMoneyTransferPhase(thirdAuction.Auctioneer, false);
-            thirdAuction.PerformAuctionTransfer(buyer, thirdAuction.Auctioneer, [MoneyValues.Ten]);
+            thirdAuction.PerformAuctionTransfer(initiator, thirdAuction.Auctioneer, [MoneyValues.Ten]);
 
-            var seller = _game.Players.First(p => p.Id != buyer.Id);
+            var responder = _game.Players.First(p => p.Id != initiator.Id);
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-                _game.StartNewTrade(buyer, seller, animalCard, []));
-            Assert.AreEqual($"Player \"{seller.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
-        }
-
-        [TestMethod]
-        public void StartNewTrade_BuyerDoesntHaveEnoughMoney_InvalidOperation()
-        {
-            // Arrange
-            _game.StartGame();
-            _game.SortDeck();
-            var animalCard = _game.AnimalDeck!.Animals.Peek();
-            var buyer = _game.CurrentPlayer;
-            var seller = _game.Players.First(p => p.Id != buyer.Id);
-
-            // Buyer gets animal card through auction
-            var auction = _game.StartNewAuction(_game.CurrentPlayer);
-            auction.SkipBid(auction.CurrentBidder);
-            auction.SkipBid(auction.CurrentBidder);
-
-            while (!seller.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
-            {
-                // Ensure seller has the animal card
-                var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
-                secondAuction.SkipBid(secondAuction.CurrentBidder);
-                secondAuction.SkipBid(secondAuction.CurrentBidder);
-            }
-
-            while (_game.CurrentPlayer != buyer)
-            {
-                var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
-                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
-                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
-            }
-
-            // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-                _game.StartNewTrade(buyer, seller, animalCard, [MoneyValues.Fifty, MoneyValues.Fifty]));
-            Assert.AreEqual($"Player \"{buyer.Name}\" does not have enough money for the proposed trade offer for animal card {animalCard.Animal.Name}.", exception.Message);
+                _game.StartNewTrade(initiator, responder, animalCard));
+            Assert.AreEqual($"Player \"{responder.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
         }
 
         [TestMethod]
@@ -640,23 +608,23 @@
             _game.StartGame();
             _game.SortDeck();
             var animalCard = _game.AnimalDeck!.Animals.Peek();
-            var buyer = _game.CurrentPlayer;
-            var seller = _game.Players.First(p => p.Id != buyer.Id);
+            var initiator = _game.CurrentPlayer;
+            var responder = _game.Players.First(p => p.Id != initiator.Id);
 
-            // Buyer gets animal card through auction
+            // Initiator gets animal card through auction
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
             auction.SkipBid(auction.CurrentBidder);
 
-            while (!seller.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            while (!responder.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
             {
-                // Ensure seller has the animal card
+                // Ensure responder has the animal card
                 var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
                 secondAuction.SkipBid(secondAuction.CurrentBidder);
                 secondAuction.SkipBid(secondAuction.CurrentBidder);
             }
 
-            while (_game.CurrentPlayer != buyer)
+            while (_game.CurrentPlayer != initiator)
             {
                 var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
                 thirdAuction.SkipBid(thirdAuction.CurrentBidder);
@@ -664,13 +632,352 @@
             }
 
             // Act
-            var trade = _game.StartNewTrade(buyer, seller, animalCard, [MoneyValues.Ten, MoneyValues.Fifty]);
+            var trade = _game.StartNewTrade(initiator, responder, animalCard);
 
             // Assert
-            Assert.AreEqual(buyer, trade.Buyer);
-            Assert.AreEqual(seller, trade.Seller);
+            Assert.AreEqual(initiator, trade.Initiator);
+            Assert.AreEqual(responder, trade.Responder);
             Assert.AreEqual(animalCard, trade.AnimalCard);
+            Assert.IsNull(trade.Offer);
+        }
+
+        private Trade StartGameWithActiveTrade()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var initiator = _game.CurrentPlayer;
+            var responder = _game.GetNextPlayer();
+
+            // Initiator gets animal card through auction
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+
+            while (!responder.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            {
+                // Ensure responder has the animal card
+                var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+                secondAuction.SkipBid(secondAuction.CurrentBidder);
+                secondAuction.SkipBid(secondAuction.CurrentBidder);
+            }
+
+            while (_game.CurrentPlayer != initiator)
+            {
+                var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
+                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+                thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+            }
+
+            // Act
+            return _game.StartNewTrade(initiator, responder, animalCard);
+        }
+
+        [TestMethod]
+        public void SetOffer_TradeIsNoLongerCurrentGameAction_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+            trade.AcceptTrade(trade.Responder);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetOffer(trade.Initiator, []));
+            Assert.AreEqual("This trade is not currently active.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetOffer_OfferHasAlreadyBeenMade_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetOffer(trade.Initiator, []));
+            Assert.AreEqual($"Offer already set for this trade.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetOffer_NotCurrentPlayer_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            var notInitiator = _game.Players.First(p => p.Id != trade.Initiator.Id);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetOffer(notInitiator, []));
+            Assert.AreEqual($"\"{notInitiator.Name}\" is not the trade initiator.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetOffer_OfferCanNotBeEmpty_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetOffer(trade.Initiator, []));
+            Assert.AreEqual("Offer cannot be empty.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetOffer_ResponderDoesntHaveEnoughMoney_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetOffer(trade.Initiator, [MoneyValues.Fifty, MoneyValues.Fifty]));
+            Assert.AreEqual($"Player \"{trade.Initiator.Name}\" does not have enough money for the proposed trade offer for animal card {trade.AnimalCard.Animal.Name}.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetOffer_HappyFlow_NoException()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+
+            // Act
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+
+            // Assert
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Ten, MoneyValues.Fifty }, trade.Offer);
         }
+
+        [TestMethod]
+        public void AcceptTrade_NotCurrentPlayer_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+            var notResponder = _game.Players.First(p => p.Id != trade.Responder.Id);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.AcceptTrade(notResponder));
+            Assert.AreEqual($"\"{notResponder.Name}\" is not offered the trade.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AcceptTrade_TradeIsNoLongerCurrentGameAction_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+            trade.AcceptTrade(trade.Responder);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.AcceptTrade(trade.Responder));
+            Assert.AreEqual("This trade is not currently active.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AcceptTrade_NoOfferHasBeenMade_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.AcceptTrade(trade.Responder));
+            Assert.AreEqual("Trade cannot be accepted when there is no initial offer.", exception.Message);
+        }
+
+        [TestMethod]
+        public void AcceptTrade_HappyFlow_NoException()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Zero]);
+
+            // Act
+            trade.AcceptTrade(trade.Responder);
+
+            // Assert
+            Assert.IsTrue(trade.Initiator.AnimalCards.Contains(trade.AnimalCard));
+            Assert.IsFalse(trade.Responder.AnimalCards.Contains(trade.AnimalCard));
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
+        }
+
+        [TestMethod]
+        public void Accept_DoubleCards_DoubleCardsAreTraded()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Zero]);
+            trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten]);
+
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.PlaceBid(trade.Initiator, 10);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, false);
+            auction.PerformAuctionTransfer(trade.Initiator, auction.Auctioneer, [MoneyValues.Ten]);
+
+            var remainingPlayer = _game.Players.Single(p => p.Id != trade.Initiator.Id && p.Id != trade.Responder.Id);
+
+            var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+
+            var secondTrade = _game.StartNewTrade(trade.Initiator, remainingPlayer, trade.AnimalCard);
+            secondTrade.SetOffer(trade.Initiator, [MoneyValues.Ten]);
+            secondTrade.SetCounterOffer(remainingPlayer, [MoneyValues.Zero]);
+
+            Console.WriteLine($"Number of Game actions: {_game.Auctions.Count + _game.Trades.Count}");
+            var thirdTrade = _game.StartNewTrade(trade.Responder, trade.Initiator, trade.AnimalCard);
+            thirdTrade.SetOffer(trade.Responder, [MoneyValues.Ten]);
+
+            // Act
+            thirdTrade.AcceptTrade(trade.Initiator);
+
+            // Assert
+            Assert.AreEqual(4, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_TradeIsNoLongerCurrentGameAction_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+            trade.AcceptTrade(trade.Responder);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetCounterOffer(trade.Responder, []));
+            Assert.AreEqual("This trade is not currently active.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_OfferHasNotBeenMade_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetCounterOffer(trade.Responder, []));
+            Assert.AreEqual("Counter offer cannot be set when there is no initial offer.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_NotCurrentPlayer_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+            var notResponder = _game.Players.First(p => p.Id != trade.Responder.Id);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetCounterOffer(notResponder, []));
+            Assert.AreEqual($"\"{notResponder.Name}\" is not offered the trade.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_ResponderDoesntHaveEnoughMoney_InvalidOperation()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Fifty]);
+
+            // Act & Assert
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetCounterOffer(trade.Responder, [MoneyValues.Fifty, MoneyValues.Fifty]));
+            Assert.AreEqual($"Player \"{trade.Responder.Name}\" does not have enough money for the proposed trade offer for animal card {trade.AnimalCard.Animal.Name}.", exception.Message);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_HappyFlow_NoException()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Zero]);
+
+            // Act
+            trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Ten]);
+
+            // Assert
+            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(2, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_OfferEqualsCounterOfferForFirstTime_ResetOfferAndCounterOfferAndTradeStillActive()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Zero]);
+
+            // Act
+            trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Zero]);
+
+            // Assert
+            Assert.AreEqual(1, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(1, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
+            Assert.AreEqual(_game.CurrentGameAction, trade);
+            Assert.IsNull(trade.Offer);
+            Assert.IsNull(trade.CounterOffer);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_OfferEqualsCounterOfferForSecondTime_InitiatorWinsAnimalsForFree()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Zero]);
+            trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Zero]);
+
+            // Act
+            trade.SetOffer(trade.Initiator, [MoneyValues.Ten, MoneyValues.Zero]);
+            trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Zero]);
+
+            // Assert
+            Assert.AreEqual(2, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(0, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
+            Assert.AreNotEqual(_game.CurrentGameAction, trade);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Ten, MoneyValues.Zero }, trade.Offer);
+            CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Ten, MoneyValues.Zero }, trade.CounterOffer);
+        }
+
+        [TestMethod]
+        public void SetCounterOffer_DoubleCards_DoubleCardsAreTraded()
+        {
+            // Arrange
+            var trade = StartGameWithActiveTrade();
+            trade.SetOffer(trade.Initiator, [MoneyValues.Zero]);
+            trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten]);
+
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.PlaceBid(trade.Initiator, 10);
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, false);
+            auction.PerformAuctionTransfer(trade.Initiator, auction.Auctioneer, [MoneyValues.Ten]);
+
+            var remainingPlayer = _game.Players.Single(p => p.Id != trade.Initiator.Id && p.Id != trade.Responder.Id);
+
+            var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+
+            var secondTrade = _game.StartNewTrade(trade.Initiator, remainingPlayer, trade.AnimalCard);
+            secondTrade.SetOffer(trade.Initiator, [MoneyValues.Ten]);
+            secondTrade.SetCounterOffer(remainingPlayer, [MoneyValues.Zero]);
+            var thirdTrade = _game.StartNewTrade(trade.Responder, trade.Initiator, trade.AnimalCard);
+            thirdTrade.SetOffer(trade.Responder, [MoneyValues.Ten]);
+
+            // Act
+            thirdTrade.SetCounterOffer(trade.Initiator, [MoneyValues.Zero]);
+
+            // Assert
+            Assert.AreEqual(4, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+        }
+
+        //Schrijf code om het spel te laten eindigen => ik denk dat dat automatisch heft geval is wanneer er geen dieren meer zijn in de deck en er alleen maar kwartetten zijn.
+
     }
 }

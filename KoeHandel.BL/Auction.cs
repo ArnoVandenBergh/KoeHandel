@@ -7,7 +7,7 @@
         MoneyTransferPhase,
         Finished
     }
-    public class Auction(Player auctioneer, AnimalCard animalCard, Game game) : GameAction()
+    public class Auction(Player auctioneer, AnimalCard animalCard, Game game) : GameAction(game)
     {
         public AnimalCard AnimalCard { get; set; } = animalCard;
         public Player? LastBidder { get; set; }
@@ -16,7 +16,6 @@
         public List<MoneyValues>? MoneyTransfer { get; set; } = null;
         public bool DidActioneerBuyOver { get; set; }
         public AuctionState AuctionState { get; set; } = AuctionState.BidPhase;
-        public Game Game { get; set; } = game;
         public List<Player> Bidders { get; set; } = game.Players.Where(p => p.Id != auctioneer.Id).ToList();
         public Player CurrentBidder { get; set; } = game.GetNextPlayer();
 
@@ -71,7 +70,7 @@
             {
                 throw new InvalidOperationException($"Payer and Payee are reversed.");
             }
-            int totalCash = cash.Aggregate(0, (total, value) => total + (int)value);
+            var totalCash = GetCashValue(cash);
             if (totalCash < Bid)
             {
                 throw new InvalidOperationException($"Total cash ({totalCash}) must be at least equal to the bid ({Bid}).");

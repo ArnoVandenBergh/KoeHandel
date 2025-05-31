@@ -1,8 +1,10 @@
 ﻿namespace KoeHandel.BL
 {
-    public abstract class GameAction
+    public abstract class GameAction(Game Game)
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public Game Game { get; set; } = Game;
+
         internal abstract void MoveToFinishedState();
         internal static void ValidatePlayerHasEnoughCash(Player player, List<MoneyValues> cash)
         {
@@ -27,6 +29,11 @@
             {
                 player.Balance.Remove(value);
             }
+        }
+
+        internal static int GetCashValue(List<MoneyValues> cash)
+        {
+            return cash.Sum(value => (int)value);
         }
     }
     public class Game
@@ -118,7 +125,7 @@
             return auction;
         }
 
-        public Trade StartNewTrade(Player buyer, Player seller, AnimalCard animalCard, List<MoneyValues> offer)
+        public Trade StartNewTrade(Player buyer, Player seller, AnimalCard animalCard)
         {
             if (_state != GameState.InProgress)
             {
@@ -140,16 +147,8 @@
             {
                 throw new InvalidOperationException($"Player \"{seller.Name}\" does not have the animal card {animalCard.Animal.Name}.");
             }
-            try
-            {
-                GameAction.ValidatePlayerHasEnoughCash(buyer, offer);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new InvalidOperationException($"Player \"{buyer.Name}\" does not have enough money for the proposed trade offer for animal card {animalCard.Animal.Name}.");
-            }
 
-            var trade = new Trade(buyer, seller, animalCard, offer);
+            var trade = new Trade(buyer, seller, animalCard, this);
             Trades.Add(trade);
             CurrentGameAction = trade;
             Console.WriteLine($"Player \"{buyer.Name}\" has started a trade with {seller.Name} for the {animalCard.Animal.Name}.");
