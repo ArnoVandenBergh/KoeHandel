@@ -7,7 +7,6 @@
         {
             // Arrange
             _game.StartGame();
-            _game.SortDeck();
             var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.GetNextPlayer();
