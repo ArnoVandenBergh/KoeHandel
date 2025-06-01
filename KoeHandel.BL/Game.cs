@@ -46,6 +46,7 @@
         }
 
         private GameState _state = GameState.NotStarted;
+        public GameState State => _state;
         public List<Player> Players { get; set; }
         internal IAnimalDeck? Deck { get; set; }
         internal List<Auction> Auctions { get; set; } = [];
@@ -201,8 +202,30 @@
             Console.WriteLine($"Ending game action: {CurrentGameAction.GetType().Name}");
             CurrentGameAction.MoveToFinishedState();
             CurrentGameAction = null;
+
+            if (Deck.Animals.Count == 0 && DoAllPlayersOnlyHaveQwartets())
+            {
+                Console.WriteLine("The deck is empty and only qwartets remaining. Ending the game.");
+                _state = GameState.Finished;
+                foreach (var player in Players)
+                {
+                    player.Score = CalculatePlayerScore(player);
+                    Console.WriteLine($"Player \"{player.Name}\" has a score of {player.Score}.");
+                }
+            }
+
             CurrentPlayer = GetNextPlayer();
         }
+
+        private static int CalculatePlayerScore(Player player) => player.AnimalCards
+                .GroupBy(c => c.Animal.Name)
+                .Sum(g => g.First().Animal.Value) * player.AnimalCards.Count / 4;
+
+        private static bool DoesPlayerOnlyHaveQwartets(Player player) => player.AnimalCards
+                .GroupBy(c => c.Animal.Name)
+                .All(g => g.Count() == 4);
+
+        private bool DoAllPlayersOnlyHaveQwartets() => Players.All(p => DoesPlayerOnlyHaveQwartets(p));
 
         internal Player GetNextPlayer()
         {

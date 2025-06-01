@@ -327,9 +327,58 @@ namespace KoeHandel.BL.Tests
             Assert.IsNull(trade.Offer);
         }
 
-        //Fix tests
+        private void MakePlayerWinCard(Player player)
+        {
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            if (player.Id == _game.CurrentPlayer.Id)
+            {
+                auction.SkipBid(auction.CurrentBidder);
+                auction.SkipBid(auction.CurrentBidder);
+                return;
+            }
+            while (auction.CurrentBidder.Id != player.Id)
+            {
+                auction.SkipBid(auction.CurrentBidder);
+            }
+            auction.PlaceBid(player, 10);
+            while (auction.CurrentBidder.Id != player.Id)
+            {
+                auction.SkipBid(auction.CurrentBidder);
+            }
+            auction.MoveToMoneyTransferPhase(auction.Auctioneer, false);
+            var lowestValueOfPlayer = player.Balance.Where(m => m != MoneyValues.Zero).Min();
+            auction.PerformAuctionTransfer(player, auction.Auctioneer, [lowestValueOfPlayer]);
+        }
 
-        //Schrijf code om het spel te laten eindigen => ik denk dat dat automatisch heft geval is wanneer er geen dieren meer zijn in de deck en er alleen maar kwartetten zijn.
+        private void MakePlayerWinQuartet(Player player)
+        {
+            MakePlayerWinCard(player);
+            MakePlayerWinCard(player);
+            MakePlayerWinCard(player);
+            MakePlayerWinCard(player);
+        }
 
+        [TestMethod]
+        public void EndGame_NoAnimalsLeftInDeck_AllPlayersHaveQuartets_GameEnds()
+        {
+            // Arrange & Act
+            _game.StartGame();
+            MakePlayerWinQuartet(_player1);
+            MakePlayerWinQuartet(_player2);
+            MakePlayerWinQuartet(_player3);
+            MakePlayerWinQuartet(_player1);
+            MakePlayerWinQuartet(_player2);
+            MakePlayerWinQuartet(_player3);
+            MakePlayerWinQuartet(_player1);
+            MakePlayerWinQuartet(_player2);
+            MakePlayerWinQuartet(_player3);
+            MakePlayerWinQuartet(_player1);
+
+            // Assert
+            Assert.AreEqual(GameState.Finished, _game.State);
+            Assert.AreEqual(5600, _player1.Score);
+            Assert.AreEqual(3780, _player2.Score);
+            Assert.AreEqual(3570, _player3.Score);
+        }
     }
 }
