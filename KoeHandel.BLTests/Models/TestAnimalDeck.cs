@@ -1,19 +1,17 @@
-﻿using KoeHandel.BL;
-
-namespace KoeHandel.BLTests.Models
+﻿namespace KoeHandel.BL.Tests.Models
 {
     public class TestAnimalDeck : IAnimalDeck
     {
-        internal readonly static Animal _koe = new Animal("Koe", 800);
-        internal readonly static Animal _schaap = new Animal("Schaap", 250);
-        internal readonly static Animal _gans = new Animal("Gans", 40);
-        internal readonly static Animal _kat = new Animal("Kat", 90);
-        internal readonly static Animal _paard = new Animal("Paard", 1000);
-        internal readonly static Animal _ezel = new Animal("Ezel", 500);
-        internal readonly static Animal _hond = new Animal("Hond", 160);
-        internal readonly static Animal _kip = new Animal("Kip", 10);
-        internal readonly static Animal _varken = new Animal("Varken", 650);
-        internal readonly static Animal _geit = new Animal("Geit", 350);
+        internal readonly static Animal _koe = new("Koe", 800);
+        internal readonly static Animal _schaap = new("Schaap", 250);
+        internal readonly static Animal _gans = new("Gans", 40);
+        internal readonly static Animal _kat = new("Kat", 90);
+        internal readonly static Animal _paard = new("Paard", 1000);
+        internal readonly static Animal _ezel = new("Ezel", 500);
+        internal readonly static Animal _hond = new("Hond", 160);
+        internal readonly static Animal _kip = new("Kip", 10);
+        internal readonly static Animal _varken = new("Varken", 650);
+        internal readonly static Animal _geit = new("Geit", 350);
 
         public Queue<AnimalCard> Animals { get; set; }
 

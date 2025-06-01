@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoeHandel.API", "KoeHandel.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoeHandel.BL", "KoeHandel.BL\KoeHandel.BL.csproj", "{482C2E23-5B62-436E-88FB-075446B9F18D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoeHandel.BLTests", "KoeHandel.BLTests\KoeHandel.BLTests.csproj", "{F547B958-38C2-4875-971A-B9C0FA853D58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoeHandel.BL.Tests", "KoeHandel.BLTests\KoeHandel.BL.Tests.csproj", "{F547B958-38C2-4875-971A-B9C0FA853D58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

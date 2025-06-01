@@ -1,4 +1,4 @@
-﻿using KoeHandel.BLTests.Models;
+﻿using KoeHandel.BL.Tests.Models;
 
 namespace KoeHandel.BL.Tests
 {

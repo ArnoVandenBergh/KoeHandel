@@ -1,4 +1,4 @@
-﻿using KoeHandel.BLTests.Models;
+﻿using KoeHandel.BL.Tests.Models;
 
 namespace KoeHandel.BL.Tests
 {
@@ -82,7 +82,7 @@ namespace KoeHandel.BL.Tests
         {
             // Arrange
             _game.StartGame();
-            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            _game.StartNewAuction(_game.CurrentPlayer);
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewAuction(_game.CurrentPlayer));
@@ -95,7 +95,7 @@ namespace KoeHandel.BL.Tests
             // Arrange
             _game.StartGame();
 
-            int count = _game.Deck.Animals.Count;
+            int count = _game.Deck!.Animals.Count;
             for (int i = 0; i < count; i++)
             {
                 var auction = _game.StartNewAuction(_game.CurrentPlayer);
@@ -113,7 +113,7 @@ namespace KoeHandel.BL.Tests
         {
             // Arrange
             _game.StartGame();
-            var animalCard = _game.Deck.Animals.Peek();
+            var animalCard = _game.Deck!.Animals.Peek();
 
             // Act
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
