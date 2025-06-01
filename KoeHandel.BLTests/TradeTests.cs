@@ -8,7 +8,7 @@
             // Arrange
             _game.StartGame();
             _game.SortDeck();
-            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.GetNextPlayer();
 
@@ -162,7 +162,7 @@
         }
 
         [TestMethod]
-        public void Accept_DoubleCards_DoubleCardsAreTraded()
+        public void AcceptTrade_DoubleCards_DoubleCardsAreTraded()
         {
             // Arrange
             var trade = StartGameWithActiveTrade();

@@ -38,20 +38,22 @@
     }
     public class Game
     {
-        public Game(Player firstPlayer)
+        public Game(Player firstPlayer, IAnimalDeck deck)
         {
             Players = [firstPlayer];
             Console.WriteLine($"Player \"{firstPlayer.Name}\" has opened a lobby for a new game.");
+            Deck = deck;
         }
 
         private GameState _state = GameState.NotStarted;
         public List<Player> Players { get; set; }
-        public AnimalDeck? AnimalDeck { get; set; }
-        public List<Auction> Auctions { get; set; } = [];
-        public List<Trade> Trades { get; set; } = [];
-        public int Round { get; set; }
-        public Player CurrentPlayer { get; set; } = default!;
+        internal IAnimalDeck? Deck { get; set; }
+        internal List<Auction> Auctions { get; set; } = [];
+        internal List<Trade> Trades { get; set; } = [];
+        internal int Round { get; set; }
+        internal Player CurrentPlayer { get; set; } = default!;
         public GameAction? CurrentGameAction { get; set; }
+        private int _numberOfDonkeyDrops = 0;
 
         public int AddPlayer(Player player)
         {
@@ -88,7 +90,6 @@
             }
 
             _state = GameState.InProgress;
-            AnimalDeck = new AnimalDeck();
             Console.WriteLine($"The game has started with {Players.Count} players.");
 
             var random = new Random();
@@ -96,6 +97,19 @@
             Console.WriteLine($"Player \"{CurrentPlayer.Name}\" has been selected as the first player.");
 
             return _state;
+        }
+
+        private static MoneyValues GetMoneyValueBasedOnDonkeyDropCount(int count)
+        {
+            return count switch
+            {
+                0 => throw new ArgumentOutOfRangeException(nameof(count), "Invalid donkey drop count."),
+                1 => MoneyValues.Fifty,
+                2 => MoneyValues.Hundred,
+                3 => MoneyValues.TwoHundred,
+                4 => MoneyValues.FiveHundred,
+                _ => throw new ArgumentOutOfRangeException(nameof(count), "Invalid donkey drop count.")
+            };
         }
 
         public Auction StartNewAuction(Player auctioneer)
@@ -112,12 +126,29 @@
             {
                 throw new InvalidOperationException("A game action is already in progress.");
             }
-            if (!AnimalDeck!.Animals.Any())
+            if (!Deck!.Animals.Any())
             {
                 throw new InvalidOperationException("No animals left in the deck.");
             }
 
-            var animalCard = AnimalDeck.Animals.Dequeue();
+            var animalCard = Deck.Animals.Dequeue();
+
+            if (animalCard.Animal.Name == AnimalDeck._ezel.Name)
+            {
+                _numberOfDonkeyDrops++;
+                Console.WriteLine($"Player \"{auctioneer.Name}\" has dropped a donkey. Current donkey drop count: {_numberOfDonkeyDrops}.");
+                if (_numberOfDonkeyDrops > 4)
+                {
+                    throw new InvalidOperationException("Cannot drop more than 4 donkeys.");
+                }
+                foreach (var player in Players)
+                {
+                    var moneyValue = GetMoneyValueBasedOnDonkeyDropCount(_numberOfDonkeyDrops);
+                    player.Balance.Add(moneyValue);
+                    Console.WriteLine($"Player \"{player.Name}\" has received {moneyValue} for the donkey drop.");
+                }
+            }
+
             var auction = new Auction(auctioneer, animalCard, this);
             Auctions.Add(auction);
             CurrentGameAction = auction;
@@ -157,8 +188,8 @@
 
         internal void SortDeck()
         {
-            var orderedDeck = AnimalDeck!.Animals.OrderBy(c => c.Animal.Name);
-            AnimalDeck!.Animals = new Queue<AnimalCard>(orderedDeck);
+            var orderedDeck = Deck!.Animals.OrderBy(c => c.Animal.Name);
+            Deck!.Animals = new Queue<AnimalCard>(orderedDeck);
         }
 
         internal void EndCurrentGameAction()

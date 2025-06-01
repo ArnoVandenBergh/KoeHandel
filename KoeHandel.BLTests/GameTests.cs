@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.BL.Tests
+﻿using KoeHandel.BLTests.Models;
+
+namespace KoeHandel.BL.Tests
 {
     [TestClass]
     public class GameTests() : BaseTests()
@@ -40,7 +42,7 @@
         public void StartGame_NotEnoughPlayers_InvalidOperation()
         {
             // Arrange
-            var game = new Game(_player1);
+            var game = new Game(_player1, new TestAnimalDeck());
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => game.StartGame());
             Assert.AreEqual("Cannot start a game with less than 3 players.", exception.Message);
@@ -93,7 +95,7 @@
             // Arrange
             _game.StartGame();
 
-            int count = _game.AnimalDeck.Animals.Count;
+            int count = _game.Deck.Animals.Count;
             for (int i = 0; i < count; i++)
             {
                 var auction = _game.StartNewAuction(_game.CurrentPlayer);
@@ -111,7 +113,7 @@
         {
             // Arrange
             _game.StartGame();
-            var animalCard = _game.AnimalDeck.Animals.Peek();
+            var animalCard = _game.Deck.Animals.Peek();
 
             // Act
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
@@ -123,13 +125,95 @@
         }
 
         [TestMethod]
+        public void StartNewTrade_DonkeyDropNr1_AllPlayersGain50()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+
+            // Act
+            _game.StartNewAuction(_game.CurrentPlayer);
+
+            // Act & Assert
+            Assert.AreEqual(2, _player1.Balance.Count(m => m == MoneyValues.Fifty));
+            Assert.AreEqual(2, _player2.Balance.Count(m => m == MoneyValues.Fifty));
+            Assert.AreEqual(2, _player3.Balance.Count(m => m == MoneyValues.Fifty));
+        }
+
+        [TestMethod]
+        public void StartNewTrade_DonkeyDropNr2_AllPlayersGain100()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+
+            // Act
+            _game.StartNewAuction(_game.CurrentPlayer);
+
+            // Act & Assert
+            Assert.AreEqual(1, _player1.Balance.Count(m => m == MoneyValues.Hundred));
+            Assert.AreEqual(1, _player2.Balance.Count(m => m == MoneyValues.Hundred));
+            Assert.AreEqual(1, _player3.Balance.Count(m => m == MoneyValues.Hundred));
+        }
+
+        [TestMethod]
+        public void StartNewTrade_DonkeyDropNr3_AllPlayersGain200()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+            var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+
+            // Act
+            _game.StartNewAuction(_game.CurrentPlayer);
+
+            // Act & Assert
+            Assert.AreEqual(1, _player1.Balance.Count(m => m == MoneyValues.TwoHundred));
+            Assert.AreEqual(1, _player2.Balance.Count(m => m == MoneyValues.TwoHundred));
+            Assert.AreEqual(1, _player3.Balance.Count(m => m == MoneyValues.TwoHundred));
+        }
+
+        [TestMethod]
+        public void StartNewTrade_DonkeyDropNr4_AllPlayersGain500()
+        {
+            // Arrange
+            _game.StartGame();
+            _game.SortDeck();
+            var auction = _game.StartNewAuction(_game.CurrentPlayer);
+            auction.SkipBid(auction.CurrentBidder);
+            auction.SkipBid(auction.CurrentBidder);
+            var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+            secondAuction.SkipBid(secondAuction.CurrentBidder);
+            var thirdAuction = _game.StartNewAuction(_game.CurrentPlayer);
+            thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+            thirdAuction.SkipBid(thirdAuction.CurrentBidder);
+
+            // Act
+            _game.StartNewAuction(_game.CurrentPlayer);
+
+            // Act & Assert
+            Assert.AreEqual(1, _player1.Balance.Count(m => m == MoneyValues.FiveHundred));
+            Assert.AreEqual(1, _player2.Balance.Count(m => m == MoneyValues.FiveHundred));
+            Assert.AreEqual(1, _player3.Balance.Count(m => m == MoneyValues.FiveHundred));
+        }
+
+        [TestMethod]
         public void StartNewTrade_NotCurrentPlayer_InvalidOperation()
         {
             // Arrange
             _game.StartGame();
             var notCurrentPlayer = _game.Players.First(player => player.Id != _game.CurrentPlayer.Id);
             // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewTrade(notCurrentPlayer, _game.CurrentPlayer, _game.AnimalDeck!.Animals.Peek()));
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewTrade(notCurrentPlayer, _game.CurrentPlayer, _game.Deck!.Animals.Peek()));
             Assert.AreEqual($"It's not {notCurrentPlayer.Name}'s turn to start a trade.", exception.Message);
         }
 
@@ -147,7 +231,7 @@
         {
             // Arrange
             _game.StartGame();
-            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var animalCard = _game.Deck!.Animals.Peek();
             _game.StartNewAuction(_game.CurrentPlayer);
 
             // Act & Assert
@@ -161,7 +245,7 @@
         {
             // Arrange
             _game.StartGame();
-            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.Players.First(p => p.Id != initiator.Id);
             // Act & Assert
@@ -175,7 +259,7 @@
         {
             // Arrange
             _game.StartGame();
-            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
 
             // initiator gets animal card through auction
@@ -210,7 +294,7 @@
             // Arrange
             _game.StartGame();
             _game.SortDeck();
-            var animalCard = _game.AnimalDeck!.Animals.Peek();
+            var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.Players.First(p => p.Id != initiator.Id);
 
@@ -243,6 +327,8 @@
             Assert.AreEqual(animalCard, trade.AnimalCard);
             Assert.IsNull(trade.Offer);
         }
+
+        //Fix tests
 
         //Schrijf code om het spel te laten eindigen => ik denk dat dat automatisch heft geval is wanneer er geen dieren meer zijn in de deck en er alleen maar kwartetten zijn.
 

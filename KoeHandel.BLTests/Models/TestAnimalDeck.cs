@@ -1,14 +1,8 @@
-﻿namespace KoeHandel.BL
+﻿using KoeHandel.BL;
+
+namespace KoeHandel.BLTests.Models
 {
-    public interface IAnimalDeck
-    {
-        Queue<AnimalCard> Animals { get; set; }
-    }
-    public record AnimalCard(Animal Animal);
-
-    public record Animal(string Name, int Value);
-
-    public class AnimalDeck : IAnimalDeck
+    public class TestAnimalDeck : IAnimalDeck
     {
         internal readonly static Animal _koe = new Animal("Koe", 800);
         internal readonly static Animal _schaap = new Animal("Schaap", 250);
@@ -23,7 +17,7 @@
 
         public Queue<AnimalCard> Animals { get; set; }
 
-        public AnimalDeck()
+        public TestAnimalDeck()
         {
             List<Animal> animals =
             [
@@ -46,7 +40,7 @@
                     acc.Add(new AnimalCard(animal));
                 }
                 return acc;
-            }).OrderBy(_ => Guid.NewGuid()).ToList();
+            }).ToList();
 
             Animals = new Queue<AnimalCard>(animalCards);
         }

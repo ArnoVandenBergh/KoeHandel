@@ -348,6 +348,7 @@
         {
             // Arrange
             _game.StartGame();
+
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 100);

@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.BL.Tests
+﻿using KoeHandel.BLTests.Models;
+
+namespace KoeHandel.BL.Tests
 {
     public class BaseTests
     {
@@ -12,7 +14,7 @@
             _player1 = new Player("Player 1");
             _player2 = new Player("Player 2");
             _player3 = new Player("Player 3");
-            _game = new Game(_player1);
+            _game = new Game(_player1, new TestAnimalDeck());
             _game.AddPlayer(_player2);
             _game.AddPlayer(_player3);
         }
