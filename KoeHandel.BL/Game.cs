@@ -156,33 +156,33 @@
             return auction;
         }
 
-        public Trade StartNewTrade(Player buyer, Player seller, AnimalCard animalCard)
+        public Trade StartNewTrade(Player initiator, Player responder, AnimalCard animalCard)
         {
             if (_state != GameState.InProgress)
             {
                 throw new InvalidOperationException("The game is not in progress.");
             }
-            if (CurrentPlayer != buyer)
+            if (CurrentPlayer != initiator)
             {
-                throw new InvalidOperationException($"It's not {buyer.Name}'s turn to start a trade.");
+                throw new InvalidOperationException($"It's not {initiator.Name}'s turn to start a trade.");
             }
             if (CurrentGameAction != null)
             {
                 throw new InvalidOperationException("A game action is already in progress.");
             }
-            if (!buyer.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            if (!initiator.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
             {
-                throw new InvalidOperationException($"Player \"{buyer.Name}\" does not have the animal card {animalCard.Animal.Name}.");
+                throw new InvalidOperationException($"Player \"{initiator.Name}\" does not have the animal card {animalCard.Animal.Name}.");
             }
-            if (!seller.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            if (!responder.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
             {
-                throw new InvalidOperationException($"Player \"{seller.Name}\" does not have the animal card {animalCard.Animal.Name}.");
+                throw new InvalidOperationException($"Player \"{responder.Name}\" does not have the animal card {animalCard.Animal.Name}.");
             }
 
-            var trade = new Trade(buyer, seller, animalCard, this);
+            var trade = new Trade(initiator, responder, animalCard, this);
             Trades.Add(trade);
             CurrentGameAction = trade;
-            Console.WriteLine($"Player \"{buyer.Name}\" has started a trade with {seller.Name} for the {animalCard.Animal.Name}.");
+            Console.WriteLine($"Player \"{initiator.Name}\" has started a trade with {responder.Name} for the {animalCard.Animal.Name}.");
             return trade;
         }
 
