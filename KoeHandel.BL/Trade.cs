@@ -40,7 +40,7 @@
             }
             try
             {
-                GameAction.ValidatePlayerHasEnoughCash(initiator, offer);
+                initiator.ValidatePlayerHasEnoughCash(offer);
             }
             catch (InvalidOperationException)
             {
@@ -67,15 +67,15 @@
             }
             try
             {
-                ValidatePlayerHasEnoughCash(responder, counterOffer);
+                responder.ValidatePlayerHasEnoughCash(counterOffer);
             }
             catch (InvalidOperationException)
             {
                 throw new InvalidOperationException($"Player \"{responder.Name}\" does not have enough money for the proposed trade offer for animal card {AnimalCard.Animal.Name}.");
             }
 
-            var totalOfferValue = GetCashValue(Offer);
-            var totalCounterOfferValue = GetCashValue(counterOffer);
+            var totalOfferValue = CashExtensions.GetCashValue(Offer);
+            var totalCounterOfferValue = CashExtensions.GetCashValue(counterOffer);
             if (totalOfferValue == totalCounterOfferValue && !OffersWereEqualBefore)
             {
                 Offer = null;
@@ -94,9 +94,9 @@
             Console.WriteLine($"Counter offer set: {responder.Name} offers {string.Join(", ", counterOffer)} for {AnimalCard.Animal.Name} to {Initiator.Name}.");
 
             CounterOffer = counterOffer;
-            RemoveCashFromPlayer(responder, counterOffer);
+            responder.RemoveCash(counterOffer);
             Initiator.Balance.AddRange(counterOffer);
-            RemoveCashFromPlayer(Initiator, Offer);
+            Initiator.RemoveCash(Offer);
             Responder.Balance.AddRange(Offer);
 
             if (totalOfferValue > totalCounterOfferValue)
@@ -142,7 +142,7 @@
             Console.WriteLine($"Trade accepted by {responder.Name} for {AnimalCard.Animal.Name} from {Initiator.Name}.");
 
             TransferCards(Responder, Initiator);
-            RemoveCashFromPlayer(Initiator, Offer);
+            Initiator.RemoveCash(Offer);
             Responder.Balance.AddRange(Offer);
             Game.EndCurrentGameAction();
             Console.WriteLine($"Trade accepted: {Initiator.Name} trades {AnimalCard.Animal.Name} with {Responder.Name} for {string.Join(", ", Offer)}.");

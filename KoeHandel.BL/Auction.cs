@@ -70,14 +70,14 @@
             {
                 throw new InvalidOperationException($"Payer and Payee are reversed.");
             }
-            var totalCash = GetCashValue(cash);
+            var totalCash = CashExtensions.GetCashValue(cash);
             if (totalCash < Bid)
             {
                 throw new InvalidOperationException($"Total cash ({totalCash}) must be at least equal to the bid ({Bid}).");
             }
 
-            ValidatePlayerHasEnoughCash(payer, cash);
-            RemoveCashFromPlayer(payer, cash);
+            payer.ValidatePlayerHasEnoughCash(cash);
+            payer.RemoveCash(cash);
 
             payee.Balance.AddRange(cash);
             payer.AnimalCards.Add(AnimalCard);

@@ -6,36 +6,8 @@
         public Game Game { get; set; } = Game;
 
         internal abstract void MoveToFinishedState();
-        internal static void ValidatePlayerHasEnoughCash(Player player, List<MoneyValues> cash)
-        {
-            List<MoneyValues> payerBalance = [.. player.Balance];
-            foreach (var value in cash)
-            {
-                int index = payerBalance.IndexOf(value);
-                if (index != -1)
-                {
-                    payerBalance.RemoveAt(index);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Payer does not have enough of {value} to transfer.");
-                }
-            }
-        }
-
-        internal static void RemoveCashFromPlayer(Player player, List<MoneyValues> cash)
-        {
-            foreach (var value in cash)
-            {
-                player.Balance.Remove(value);
-            }
-        }
-
-        internal static int GetCashValue(List<MoneyValues> cash)
-        {
-            return cash.Sum(value => (int)value);
-        }
     }
+
     public class Game
     {
         public Game(Player firstPlayer, IAnimalDeck deck)
@@ -203,9 +175,9 @@
             CurrentGameAction.MoveToFinishedState();
             CurrentGameAction = null;
 
-            if (Deck.Animals.Count == 0 && DoAllPlayersOnlyHaveQwartets())
+            if (Deck.Animals.Count == 0 && DoAllPlayersOnlyHaveQuartets())
             {
-                Console.WriteLine("The deck is empty and only qwartets remaining. Ending the game.");
+                Console.WriteLine("The deck is empty and only quartets remaining. Ending the game.");
                 _state = GameState.Finished;
                 foreach (var player in Players)
                 {
@@ -221,11 +193,11 @@
                 .GroupBy(c => c.Animal.Name)
                 .Sum(g => g.First().Animal.Value) * player.AnimalCards.Count / 4;
 
-        private static bool DoesPlayerOnlyHaveQwartets(Player player) => player.AnimalCards
+        private static bool DoesPlayerOnlyHaveQuartets(Player player) => player.AnimalCards
                 .GroupBy(c => c.Animal.Name)
                 .All(g => g.Count() == 4);
 
-        private bool DoAllPlayersOnlyHaveQwartets() => Players.All(p => DoesPlayerOnlyHaveQwartets(p));
+        private bool DoAllPlayersOnlyHaveQuartets() => Players.All(p => DoesPlayerOnlyHaveQuartets(p));
 
         internal Player GetNextPlayer()
         {
