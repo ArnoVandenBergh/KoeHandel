@@ -1,1 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Freckle+Face&family=Knewave&display=swap');
+
+html {
+    background-image: url('/assets/cow_skin_pattern.jpg');
+    height: 100%;
+    padding: 20px;
+}
+
+body {
+    height: 100%;
+}
+
+app-root {
+    height: 100%;
+    display: block
+}
+
+* {
+    box-sizing: border-box;
+    font-size: 30px;
+    font-family: "Freckle Face", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+}
