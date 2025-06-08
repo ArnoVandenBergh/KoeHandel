@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, Input, output, Output } from '@angular/core';
 
 @Component({
   selector: 'app-button',
@@ -7,5 +7,6 @@ import { Component, Input } from '@angular/core';
   styleUrl: './button.scss'
 })
 export class Button {
-  @Input({required: true}) buttonText: string = "";
+  buttonText = input<string>();
+  onClick = output<void>();
 }
