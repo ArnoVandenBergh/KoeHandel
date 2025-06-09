@@ -1,4 +1,6 @@
 ﻿using KoeHandel.BL.Tests.Models;
+using KoeHandel.Domain;
+using KoeHandel.Domain.Money;
 
 namespace KoeHandel.BL.Tests
 {
@@ -222,7 +224,7 @@ namespace KoeHandel.BL.Tests
         {
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-                _game.StartNewTrade(_player1, _player2, new AnimalCard(new Animal("Schaap", 1))));
+                _game.StartNewTrade(_player1, _player2, AnimalDeck._schaap));
             Assert.AreEqual("The game is not in progress.", exception.Message);
         }
 
@@ -251,7 +253,7 @@ namespace KoeHandel.BL.Tests
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
                 _game.StartNewTrade(initiator, responder, animalCard));
-            Assert.AreEqual($"Player \"{initiator.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
+            Assert.AreEqual($"Player \"{initiator.Name}\" does not have the animal card {animalCard.Name}.", exception.Message);
         }
 
         [TestMethod]
@@ -285,7 +287,7 @@ namespace KoeHandel.BL.Tests
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() =>
                 _game.StartNewTrade(initiator, responder, animalCard));
-            Assert.AreEqual($"Player \"{responder.Name}\" does not have the animal card {animalCard.Animal.Name}.", exception.Message);
+            Assert.AreEqual($"Player \"{responder.Name}\" does not have the animal card {animalCard.Name}.", exception.Message);
         }
 
         [TestMethod]
@@ -302,7 +304,7 @@ namespace KoeHandel.BL.Tests
             auction.SkipBid(auction.CurrentBidder);
             auction.SkipBid(auction.CurrentBidder);
 
-            while (!responder.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            while (!responder.AnimalCards.Any(c => c.Name == animalCard.Name))
             {
                 // Ensure responder has the animal card
                 var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);

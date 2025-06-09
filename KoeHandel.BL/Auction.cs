@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.BL
+﻿using KoeHandel.Domain.Money;
+
+namespace KoeHandel.BL
 {
     public enum AuctionState
     {

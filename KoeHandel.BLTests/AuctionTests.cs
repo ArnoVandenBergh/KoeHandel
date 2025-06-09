@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.BL.Tests
+﻿using KoeHandel.Domain.Money;
+
+namespace KoeHandel.BL.Tests
 {
     [TestClass()]
     public class AuctionTests() : BaseTests()

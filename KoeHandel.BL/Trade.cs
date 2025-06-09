@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.BL
+﻿using KoeHandel.Domain.Money;
+
+namespace KoeHandel.BL
 {
     public class Trade(Player initiator, Player responder, AnimalCard animalCard, Game game) : GameAction(game)
     {
@@ -17,7 +19,7 @@
 
         private static bool HasCardPaired(Player player, AnimalCard animalCard)
         {
-            return player.AnimalCards.Count(c => c.Animal.Name == animalCard.Animal.Name) == 2;
+            return player.AnimalCards.Count(c => c.Name == animalCard.Name) == 2;
         }
 
         public void SetOffer(Player initiator, List<MoneyValues> offer)
@@ -44,11 +46,11 @@
             }
             catch (InvalidOperationException)
             {
-                throw new InvalidOperationException($"Player \"{initiator.Name}\" does not have enough money for the proposed trade offer for animal card {AnimalCard.Animal.Name}.");
+                throw new InvalidOperationException($"Player \"{initiator.Name}\" does not have enough money for the proposed trade offer for animal card {AnimalCard.Name}.");
             }
 
             Offer = offer;
-            Console.WriteLine($"Offer set: {initiator.Name} offers {string.Join(", ", offer)} for {AnimalCard.Animal.Name} to {Responder.Name}.");
+            Console.WriteLine($"Offer set: {initiator.Name} offers {string.Join(", ", offer)} for {AnimalCard.Name} to {Responder.Name}.");
         }
 
         public void SetCounterOffer(Player responder, List<MoneyValues> counterOffer)
@@ -71,7 +73,7 @@
             }
             catch (InvalidOperationException)
             {
-                throw new InvalidOperationException($"Player \"{responder.Name}\" does not have enough money for the proposed trade offer for animal card {AnimalCard.Animal.Name}.");
+                throw new InvalidOperationException($"Player \"{responder.Name}\" does not have enough money for the proposed trade offer for animal card {AnimalCard.Name}.");
             }
 
             var totalOfferValue = CashExtensions.GetCashValue(Offer);
@@ -91,7 +93,7 @@
                 return;
             }
 
-            Console.WriteLine($"Counter offer set: {responder.Name} offers {string.Join(", ", counterOffer)} for {AnimalCard.Animal.Name} to {Initiator.Name}.");
+            Console.WriteLine($"Counter offer set: {responder.Name} offers {string.Join(", ", counterOffer)} for {AnimalCard.Name} to {Initiator.Name}.");
 
             CounterOffer = counterOffer;
             responder.RemoveCash(counterOffer);
@@ -114,8 +116,8 @@
         {
             if (IsAnimalPaired)
             {
-                to.AnimalCards.AddRange(from.AnimalCards.Where(c => c.Animal.Name == AnimalCard.Animal.Name));
-                from.AnimalCards.RemoveAll(c => c.Animal.Name == AnimalCard.Animal.Name);
+                to.AnimalCards.AddRange(from.AnimalCards.Where(c => c.Name == AnimalCard.Name));
+                from.AnimalCards.RemoveAll(c => c.Name == AnimalCard.Name);
             }
             else
             {
@@ -139,13 +141,13 @@
                 throw new InvalidOperationException($"\"{responder.Name}\" is not offered the trade.");
             }
 
-            Console.WriteLine($"Trade accepted by {responder.Name} for {AnimalCard.Animal.Name} from {Initiator.Name}.");
+            Console.WriteLine($"Trade accepted by {responder.Name} for {AnimalCard.Name} from {Initiator.Name}.");
 
             TransferCards(Responder, Initiator);
             Initiator.RemoveCash(Offer);
             Responder.Balance.AddRange(Offer);
             Game.EndCurrentGameAction();
-            Console.WriteLine($"Trade accepted: {Initiator.Name} trades {AnimalCard.Animal.Name} with {Responder.Name} for {string.Join(", ", Offer)}.");
+            Console.WriteLine($"Trade accepted: {Initiator.Name} trades {AnimalCard.Name} with {Responder.Name} for {string.Join(", ", Offer)}.");
         }
     }
 }

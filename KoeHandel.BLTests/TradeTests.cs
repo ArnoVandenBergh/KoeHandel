@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.BL.Tests
+﻿using KoeHandel.Domain.Money;
+
+namespace KoeHandel.BL.Tests
 {
     [TestClass()]
     public class TradeTests() : BaseTests()
@@ -16,7 +18,7 @@
             auction.SkipBid(auction.CurrentBidder);
             auction.SkipBid(auction.CurrentBidder);
 
-            while (!responder.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            while (!responder.AnimalCards.Any(c => c.Name == animalCard.Name))
             {
                 // Ensure responder has the animal card
                 var secondAuction = _game.StartNewAuction(_game.CurrentPlayer);
@@ -90,7 +92,7 @@
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetOffer(trade.Initiator, [MoneyValues.Fifty, MoneyValues.Fifty]));
-            Assert.AreEqual($"Player \"{trade.Initiator.Name}\" does not have enough money for the proposed trade offer for animal card {trade.AnimalCard.Animal.Name}.", exception.Message);
+            Assert.AreEqual($"Player \"{trade.Initiator.Name}\" does not have enough money for the proposed trade offer for animal card {trade.AnimalCard.Name}.", exception.Message);
         }
 
         [TestMethod]
@@ -192,8 +194,8 @@
             thirdTrade.AcceptTrade(trade.Initiator);
 
             // Assert
-            Assert.AreEqual(4, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
-            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(4, trade.Responder.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
+            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
         }
 
         [TestMethod]
@@ -242,7 +244,7 @@
 
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => trade.SetCounterOffer(trade.Responder, [MoneyValues.Fifty, MoneyValues.Fifty]));
-            Assert.AreEqual($"Player \"{trade.Responder.Name}\" does not have enough money for the proposed trade offer for animal card {trade.AnimalCard.Animal.Name}.", exception.Message);
+            Assert.AreEqual($"Player \"{trade.Responder.Name}\" does not have enough money for the proposed trade offer for animal card {trade.AnimalCard.Name}.", exception.Message);
         }
 
         [TestMethod]
@@ -256,8 +258,8 @@
             trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Ten]);
 
             // Assert
-            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
-            Assert.AreEqual(2, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
+            Assert.AreEqual(2, trade.Responder.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
         }
@@ -273,8 +275,8 @@
             trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Zero]);
 
             // Assert
-            Assert.AreEqual(1, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
-            Assert.AreEqual(1, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(1, trade.Initiator.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
+            Assert.AreEqual(1, trade.Responder.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
             Assert.AreEqual(_game.CurrentGameAction, trade);
@@ -295,8 +297,8 @@
             trade.SetCounterOffer(trade.Responder, [MoneyValues.Ten, MoneyValues.Zero]);
 
             // Assert
-            Assert.AreEqual(2, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
-            Assert.AreEqual(0, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(2, trade.Initiator.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
+            Assert.AreEqual(0, trade.Responder.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Responder.Balance);
             CollectionAssert.AreEquivalent(new List<MoneyValues> { MoneyValues.Zero, MoneyValues.Zero, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Ten, MoneyValues.Fifty }, trade.Initiator.Balance);
             Assert.AreNotEqual(_game.CurrentGameAction, trade);
@@ -334,8 +336,8 @@
             thirdTrade.SetCounterOffer(trade.Initiator, [MoneyValues.Zero]);
 
             // Assert
-            Assert.AreEqual(4, trade.Responder.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
-            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Animal.Name == trade.AnimalCard.Animal.Name));
+            Assert.AreEqual(4, trade.Responder.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
+            Assert.AreEqual(0, trade.Initiator.AnimalCards.Count(c => c.Name == trade.AnimalCard.Name));
         }
     }
 }

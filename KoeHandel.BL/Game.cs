@@ -1,4 +1,7 @@
-﻿namespace KoeHandel.BL
+﻿using KoeHandel.Domain;
+using KoeHandel.Domain.Money;
+
+namespace KoeHandel.BL
 {
     public abstract class GameAction(Game Game)
     {
@@ -106,7 +109,7 @@
 
             var animalCard = Deck.Animals.Dequeue();
 
-            if (animalCard.Animal.Name == AnimalDeck._ezel.Name)
+            if (animalCard.Name == AnimalDeck._ezel.Name)
             {
                 _numberOfDonkeyDrops++;
                 Console.WriteLine($"Player \"{auctioneer.Name}\" has dropped a donkey. Current donkey drop count: {_numberOfDonkeyDrops}.");
@@ -125,7 +128,7 @@
             var auction = new Auction(auctioneer, animalCard, this);
             Auctions.Add(auction);
             CurrentGameAction = auction;
-            Console.WriteLine($"Player \"{auctioneer.Name}\" has started an auction for the {animalCard.Animal.Name}.");
+            Console.WriteLine($"Player \"{auctioneer.Name}\" has started an auction for the {animalCard.Name}.");
             return auction;
         }
 
@@ -143,25 +146,25 @@
             {
                 throw new InvalidOperationException("A game action is already in progress.");
             }
-            if (!initiator.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            if (!initiator.AnimalCards.Any(c => c.Name == animalCard.Name))
             {
-                throw new InvalidOperationException($"Player \"{initiator.Name}\" does not have the animal card {animalCard.Animal.Name}.");
+                throw new InvalidOperationException($"Player \"{initiator.Name}\" does not have the animal card {animalCard.Name}.");
             }
-            if (!responder.AnimalCards.Any(c => c.Animal.Name == animalCard.Animal.Name))
+            if (!responder.AnimalCards.Any(c => c.Name == animalCard.Name))
             {
-                throw new InvalidOperationException($"Player \"{responder.Name}\" does not have the animal card {animalCard.Animal.Name}.");
+                throw new InvalidOperationException($"Player \"{responder.Name}\" does not have the animal card {animalCard.Name}.");
             }
 
             var trade = new Trade(initiator, responder, animalCard, this);
             Trades.Add(trade);
             CurrentGameAction = trade;
-            Console.WriteLine($"Player \"{initiator.Name}\" has started a trade with {responder.Name} for the {animalCard.Animal.Name}.");
+            Console.WriteLine($"Player \"{initiator.Name}\" has started a trade with {responder.Name} for the {animalCard.Name}.");
             return trade;
         }
 
         internal void SortDeck()
         {
-            var orderedDeck = Deck!.Animals.OrderBy(c => c.Animal.Name);
+            var orderedDeck = Deck!.Animals.OrderBy(c => c.Name);
             Deck!.Animals = new Queue<AnimalCard>(orderedDeck);
         }
 
@@ -190,11 +193,11 @@
         }
 
         private static int CalculatePlayerScore(Player player) => player.AnimalCards
-                .GroupBy(c => c.Animal.Name)
-                .Sum(g => g.First().Animal.Value) * player.AnimalCards.Count / 4;
+                .GroupBy(c => c.Name)
+                .Sum(g => g.First().Value) * player.AnimalCards.Count / 4;
 
         private static bool DoesPlayerOnlyHaveQuartets(Player player) => player.AnimalCards
-                .GroupBy(c => c.Animal.Name)
+                .GroupBy(c => c.Name)
                 .All(g => g.Count() == 4);
 
         private bool DoAllPlayersOnlyHaveQuartets() => Players.All(p => DoesPlayerOnlyHaveQuartets(p));

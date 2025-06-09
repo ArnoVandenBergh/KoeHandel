@@ -4,28 +4,27 @@
     {
         Queue<AnimalCard> Animals { get; set; }
     }
-    public record AnimalCard(Animal Animal);
 
-    public record Animal(string Name, int Value);
+    public record AnimalCard(int Id, string Name, int Value);
 
     public class AnimalDeck : IAnimalDeck
     {
-        internal readonly static Animal _koe = new("Koe", 800);
-        internal readonly static Animal _schaap = new("Schaap", 250);
-        internal readonly static Animal _gans = new("Gans", 40);
-        internal readonly static Animal _kat = new("Kat", 90);
-        internal readonly static Animal _paard = new("Paard", 1000);
-        internal readonly static Animal _ezel = new("Ezel", 500);
-        internal readonly static Animal _hond = new("Hond", 160);
-        internal readonly static Animal _kip = new("Kip", 10);
-        internal readonly static Animal _varken = new("Varken", 650);
-        internal readonly static Animal _geit = new("Geit", 350);
+        internal readonly static AnimalCard _koe = new(9, "Koe", 800);
+        internal readonly static AnimalCard _schaap = new(5, "Schaap", 250);
+        internal readonly static AnimalCard _gans = new(2, "Gans", 40);
+        internal readonly static AnimalCard _kat = new(3, "Kat", 90);
+        internal readonly static AnimalCard _paard = new(10, "Paard", 1000);
+        internal readonly static AnimalCard _ezel = new(7, "Ezel", 500);
+        internal readonly static AnimalCard _hond = new(4, "Hond", 160);
+        internal readonly static AnimalCard _kip = new(1, "Kip", 10);
+        internal readonly static AnimalCard _varken = new(8, "Varken", 650);
+        internal readonly static AnimalCard _geit = new(6, "Geit", 350);
 
         public Queue<AnimalCard> Animals { get; set; }
 
         public AnimalDeck()
         {
-            List<Animal> animals =
+            List<AnimalCard> animals =
             [
                 _koe,
                 _schaap,
@@ -43,7 +42,7 @@
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    acc.Add(new AnimalCard(animal));
+                    acc.Add(animal);
                 }
                 return acc;
             }).OrderBy(_ => Guid.NewGuid()).ToList();
