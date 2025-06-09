@@ -1,4 +1,5 @@
-﻿using KoeHandel.Domain.Money;
+﻿using KoeHandel.BL.Tests.Models;
+using KoeHandel.Domain.Money;
 
 namespace KoeHandel.BL.Tests
 {
@@ -9,7 +10,7 @@ namespace KoeHandel.BL.Tests
         public void PlaceBid_NotCurrentBidder_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             var notCurrentBidder = _game.Players.First(p => p.Id != auction.CurrentBidder.Id && p.Id != auction.Auctioneer.Id);
 
@@ -22,7 +23,7 @@ namespace KoeHandel.BL.Tests
         public void PlaceBid_Auctioneer_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             var auctioneer = auction.Auctioneer;
 
@@ -36,7 +37,7 @@ namespace KoeHandel.BL.Tests
         public void PlaceBid_AuctionIsNoLongerCurrentGameAction_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var oldAuction = _game.StartNewAuction(_game.CurrentPlayer);
             oldAuction.SkipBid(oldAuction.CurrentBidder);
             oldAuction.SkipBid(oldAuction.CurrentBidder);
@@ -50,7 +51,7 @@ namespace KoeHandel.BL.Tests
         public void PlaceBid_BidIsToLow_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 20);
 
@@ -63,7 +64,7 @@ namespace KoeHandel.BL.Tests
         public void PlaceBid_HappyFlow_NoException()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             var auctioneer = auction.Auctioneer;
 
@@ -82,7 +83,7 @@ namespace KoeHandel.BL.Tests
         public void PlaceBid_LastRemainingBidderWhileBidIsLargerThanZero_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
             auction.PlaceBid(auction.CurrentBidder, 10);
@@ -96,7 +97,7 @@ namespace KoeHandel.BL.Tests
         public void SkipBid_NotCurrentBidder_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             var notCurrentBidder = _game.Players.First(p => p.Id != auction.CurrentBidder.Id && p.Id != auction.Auctioneer.Id);
 
@@ -109,7 +110,7 @@ namespace KoeHandel.BL.Tests
         public void SkipBid_Auctioneer_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             var auctioneer = auction.Auctioneer;
 
@@ -122,7 +123,7 @@ namespace KoeHandel.BL.Tests
         public void SkipBid_AuctionIsNoLongerCurrentGameAction_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var oldAuction = _game.StartNewAuction(_game.CurrentPlayer);
             oldAuction.SkipBid(oldAuction.CurrentBidder);
             oldAuction.SkipBid(oldAuction.CurrentBidder);
@@ -136,7 +137,7 @@ namespace KoeHandel.BL.Tests
         public void SkipBid_LastRemainingBidderWhileBidIsLargerThanZero_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.SkipBid(auction.CurrentBidder);
@@ -150,7 +151,7 @@ namespace KoeHandel.BL.Tests
         public void SkipBid_AllBiddersSkip_AuctionFinished()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auctioneer = _game.CurrentPlayer;
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
@@ -169,7 +170,7 @@ namespace KoeHandel.BL.Tests
         public void BuyOverAuction_StillBidding_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
 
@@ -182,7 +183,7 @@ namespace KoeHandel.BL.Tests
         public void BuyOverAuction_MovedPassedBuyoverPhase_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.SkipBid(auction.CurrentBidder);
@@ -197,7 +198,7 @@ namespace KoeHandel.BL.Tests
         public void BuyOverAuction_PlayerIsNotAuctioneer_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.SkipBid(auction.CurrentBidder);
@@ -211,7 +212,7 @@ namespace KoeHandel.BL.Tests
         public void BuyOverAuction_AuctioneerNoBuyOver_NoException()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.SkipBid(auction.CurrentBidder);
@@ -225,7 +226,7 @@ namespace KoeHandel.BL.Tests
         public void BuyOverAuction_AuctioneerBuyOver_NoException()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.SkipBid(auction.CurrentBidder);
@@ -239,7 +240,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_PayerIsNotLastBidder_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 30);
@@ -256,7 +257,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_PayeeIsNotLastBidder_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 30);
@@ -273,7 +274,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_PayerIsNotAuctioneerAndPayeeIsNotLastBidder_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 30);
@@ -289,7 +290,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_PayeeIsNotAuctioneerAndPayerIsNotLastBidder_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 30);
@@ -305,7 +306,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_NotInMoneyTransferPhase_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
 
             // Act & Assert
@@ -317,7 +318,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_PayerIsSamePlayerAsPayee_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 30);
@@ -333,7 +334,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_CashIsLowerThanBid_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 40);
@@ -349,7 +350,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_BalanceIsToLittle_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
 
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
@@ -367,7 +368,7 @@ namespace KoeHandel.BL.Tests
         public void AuctionTransfer_HappyFlow_MoneyAndCardTranferHappened()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.PlaceBid(auction.CurrentBidder, 10);
             auction.PlaceBid(auction.CurrentBidder, 20);

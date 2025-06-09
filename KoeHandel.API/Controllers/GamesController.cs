@@ -1,4 +1,6 @@
-﻿using KoeHandel.Persistence;
+﻿using KoeHandel.API.Mappers;
+using KoeHandel.API.Models.Game;
+using KoeHandel.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +21,7 @@ namespace KoeHandel.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Game>>> GetGames()
         {
-            return await _context.Games.ToListAsync();
+            return await _context.Games.Include(g => g.Players).ToListAsync();
         }
 
         // GET: api/Games/5
@@ -70,12 +72,26 @@ namespace KoeHandel.API.Controllers
         // POST: api/Games
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Game>> PostGame(Game game)
+        public async Task<ActionResult<CreateGameResponse>> CreateNewGame(CreateGameRequest createGame)
         {
-            _context.Games.Add(game);
+            var player = new BL.Player(createGame.PlayerName);
+            var game = new BL.Game(player);
+
+            var dbGame = game.ToPersistenceGame();
+
+            _context.Games.Add(dbGame);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetGame", new { id = game.Id }, game);
+            game.Id = dbGame.Id;
+
+            var response = new CreateGameResponse
+            {
+                GameId = game.Id,
+                PlayerId = player.Id,
+                PlayerName = player.Name
+            };
+
+            return CreatedAtAction("GetGame", new { id = game.Id }, response);
         }
 
         // DELETE: api/Games/5

@@ -1,4 +1,5 @@
-﻿using KoeHandel.Domain.Money;
+﻿using KoeHandel.BL.Tests.Models;
+using KoeHandel.Domain.Money;
 
 namespace KoeHandel.BL.Tests
 {
@@ -8,7 +9,7 @@ namespace KoeHandel.BL.Tests
         private Trade StartGameWithActiveTrade()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.GetNextPlayer();

@@ -19,7 +19,7 @@ namespace KoeHandel.BL.Tests
         public void AddPlayer_GameAlreadyInProgress_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var player4 = new Player("Player 4");
 
             // Act & Assert
@@ -44,9 +44,9 @@ namespace KoeHandel.BL.Tests
         public void StartGame_NotEnoughPlayers_InvalidOperation()
         {
             // Arrange
-            var game = new Game(_player1, new TestAnimalDeck());
+            var game = new Game(_player1);
             // Act & Assert
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => game.StartGame());
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => game.StartGame(new TestAnimalDeck()));
             Assert.AreEqual("Cannot start a game with less than 3 players.", exception.Message);
         }
 
@@ -54,7 +54,7 @@ namespace KoeHandel.BL.Tests
         public void StartGame_EnoughPlayers_NoException()
         {
             // Act
-            var gameState = _game.StartGame();
+            var gameState = _game.StartGame(new TestAnimalDeck());
 
             // Assert
             Assert.AreEqual(GameState.InProgress, gameState);
@@ -64,7 +64,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewAuction_NotCurrentPlayer_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var notCurrentPlayer = _game.Players.First(player => player.Id != _game.CurrentPlayer.Id);
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewAuction(notCurrentPlayer));
@@ -83,7 +83,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewAuction_ActionAlreadyInProgress_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             _game.StartNewAuction(_game.CurrentPlayer);
 
             // Act & Assert
@@ -95,7 +95,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewAuction_EmptyDeck_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
 
             int count = _game.Deck!.Animals.Count;
             for (int i = 0; i < count; i++)
@@ -114,7 +114,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewAuction_HappyFlow_NoException()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var animalCard = _game.Deck!.Animals.Peek();
 
             // Act
@@ -130,7 +130,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_DonkeyDropNr1_AllPlayersGain50()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             _game.SortDeck();
 
             // Act
@@ -146,7 +146,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_DonkeyDropNr2_AllPlayersGain100()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             _game.SortDeck();
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
@@ -165,7 +165,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_DonkeyDropNr3_AllPlayersGain200()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             _game.SortDeck();
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
@@ -187,7 +187,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_DonkeyDropNr4_AllPlayersGain500()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             _game.SortDeck();
             var auction = _game.StartNewAuction(_game.CurrentPlayer);
             auction.SkipBid(auction.CurrentBidder);
@@ -212,7 +212,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_NotCurrentPlayer_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var notCurrentPlayer = _game.Players.First(player => player.Id != _game.CurrentPlayer.Id);
             // Act & Assert
             var exception = Assert.ThrowsException<InvalidOperationException>(() => _game.StartNewTrade(notCurrentPlayer, _game.CurrentPlayer, _game.Deck!.Animals.Peek()));
@@ -232,7 +232,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_ActionAlreadyInProgress_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var animalCard = _game.Deck!.Animals.Peek();
             _game.StartNewAuction(_game.CurrentPlayer);
 
@@ -246,7 +246,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_InitiatorDoesntHaveTheAnimalCard_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.Players.First(p => p.Id != initiator.Id);
@@ -260,7 +260,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_ResponderDoesntHaveTheAnimalCard_InvalidOperation()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
 
@@ -294,7 +294,7 @@ namespace KoeHandel.BL.Tests
         public void StartNewTrade_HappyFlow_NoException()
         {
             // Arrange
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             var animalCard = _game.Deck!.Animals.Peek();
             var initiator = _game.CurrentPlayer;
             var responder = _game.Players.First(p => p.Id != initiator.Id);
@@ -364,7 +364,7 @@ namespace KoeHandel.BL.Tests
         public void EndGame_NoAnimalsLeftInDeck_AllPlayersHaveQuartets_GameEnds()
         {
             // Arrange & Act
-            _game.StartGame();
+            _game.StartGame(new TestAnimalDeck());
             MakePlayerWinQuartet(_player1);
             MakePlayerWinQuartet(_player2);
             MakePlayerWinQuartet(_player3);

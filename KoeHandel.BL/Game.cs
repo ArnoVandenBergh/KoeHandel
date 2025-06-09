@@ -13,13 +13,13 @@ namespace KoeHandel.BL
 
     public class Game
     {
-        public Game(Player firstPlayer, IAnimalDeck deck)
+        public Game(Player firstPlayer)
         {
             Players = [firstPlayer];
             Console.WriteLine($"Player \"{firstPlayer.Name}\" has opened a lobby for a new game.");
-            Deck = deck;
         }
 
+        public int Id { get; set; }
         private GameState _state = GameState.NotStarted;
         public GameState State => _state;
         public List<Player> Players { get; set; }
@@ -27,7 +27,7 @@ namespace KoeHandel.BL
         internal List<Auction> Auctions { get; set; } = [];
         internal List<Trade> Trades { get; set; } = [];
         internal int Round { get; set; }
-        internal Player CurrentPlayer { get; set; } = default!;
+        public Player CurrentPlayer { get; set; } = default!;
         public GameAction? CurrentGameAction { get; set; }
         private int _numberOfDonkeyDrops = 0;
 
@@ -53,7 +53,7 @@ namespace KoeHandel.BL
             return Players.Count;
         }
 
-        public GameState StartGame()
+        public GameState StartGame(IAnimalDeck deck)
         {
             if (_state != GameState.NotStarted)
             {
@@ -66,6 +66,7 @@ namespace KoeHandel.BL
             }
 
             _state = GameState.InProgress;
+            Deck = deck;
             Console.WriteLine($"The game has started with {Players.Count} players.");
 
             var random = new Random();

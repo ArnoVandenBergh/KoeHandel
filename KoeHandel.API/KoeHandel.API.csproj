@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KoeHandel.BL\KoeHandel.BL.csproj" />
     <ProjectReference Include="..\KoeHandel.Persistence\KoeHandel.Persistence.csproj" />
   </ItemGroup>
 
