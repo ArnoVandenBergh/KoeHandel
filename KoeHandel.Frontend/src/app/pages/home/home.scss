@@ -63,3 +63,21 @@ img {
 .title-second {
   color: #ffe066; /* yellow-sandy */
 }
+
+.name-input {
+  color: $linework-color;
+  background-color: $background-color;
+  border-radius: 12px;
+  padding: 12px 12px;
+  border: 5px solid $linework-color;
+  width: 100%;
+  font-size: 30px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: $accent-color;
+  background-color: lighten($background-color, 5%);
+}

@@ -9,4 +9,5 @@ import { Component, input, Input, output, Output } from '@angular/core';
 export class Button {
   buttonText = input<string>();
   onClick = output<void>();
+  disabled = input<boolean>(false);
 }

@@ -6,6 +6,7 @@ import { NewGame } from '../../models/new-game';
 import { Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { Container } from '../../components/container/container';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-lobby',
@@ -16,7 +17,8 @@ import { Container } from '../../components/container/container';
 export class Lobby {
   gameData$: Observable<NewGame>;
 
-  constructor(private gameService: GameService) { 
-    this.gameData$ = this.gameService.startNewGame();
+  constructor(private gameService: GameService, private route: ActivatedRoute) {
+    const playerName = this.route.snapshot.queryParamMap.get('name') || '';
+    this.gameData$ = this.gameService.startNewGame(playerName);
   }
 }

@@ -11,7 +11,7 @@ export class GameService {
 
   constructor(private _http: HttpClient) { }
 
-  public startNewGame(): Observable<NewGame> {
-    return this._http.post<NewGame>(`${BASE_URL}/games`, { playerName: 'Player1' });
+  public startNewGame(playerName: string): Observable<NewGame> {
+    return this._http.post<NewGame>(`${BASE_URL}/games`, { playerName });
   }
 }
