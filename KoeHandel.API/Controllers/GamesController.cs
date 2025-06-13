@@ -72,7 +72,7 @@ namespace KoeHandel.API.Controllers
         // POST: api/Games
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CreateGameResponse>> CreateNewGame(CreateGameRequest createGame)
+        public async Task<ActionResult<NewGameResponse>> CreateNewGame(CreateGameRequest createGame)
         {
             var player = new BL.Player(createGame.PlayerName);
             var game = new BL.Game(player);
@@ -84,11 +84,10 @@ namespace KoeHandel.API.Controllers
 
             game.Id = dbGame.Id;
 
-            var response = new CreateGameResponse
+            var response = new NewGameResponse
             {
                 GameId = game.Id,
-                PlayerId = player.Id,
-                PlayerName = player.Name
+                Players = [new() { Id = player.Id, Name = player.Name }]
             };
 
             return CreatedAtAction("GetGame", new { id = game.Id }, response);
