@@ -1,16 +1,18 @@
 @if(seconds$ | async; as seconds) {
   @switch (seconds % 4) {
     @case (0) {
-        <span></span>
-    }
-    @case (1) {
         <span>.</span>
     }
-    @case (2) {
+    @case (1) {
         <span>..</span>
     }
-    @case (3) {
+    @case (2) {
         <span>...</span>
     }
-}
+    @case (3) {
+        <span>....</span>
+    }
+} 
+} @else {
+  <span>.</span>
 }

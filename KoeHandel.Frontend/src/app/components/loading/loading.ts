@@ -9,6 +9,5 @@ import { tap, timer } from 'rxjs';
   styleUrl: './loading.scss'
 })
 export class Loading {
-  seconds$ = timer(500, 500)
-  .pipe(tap(console.log));
+  seconds$ = timer(500, 500);
 }

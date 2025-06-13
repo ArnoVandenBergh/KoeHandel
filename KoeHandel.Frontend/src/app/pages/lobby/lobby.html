@@ -1,1 +1,15 @@
-<app-title>Lobby<app-loading/></app-title>
+@if (gameData$ | async; as gameData) {
+  <div>
+    <app-title>Game ID: {{ gameData.gameId }}</app-title>
+    <app-container class="mt20">
+      <h3>Players:</h3>
+      <ul>
+        @for (player of gameData.players; track player.id) {
+          <li>{{ player.name }}</li>
+        }
+      </ul>
+    </app-container>
+  </div>
+} @else {
+    <app-title>Lobby<app-loading/></app-title>
+}
