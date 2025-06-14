@@ -1,0 +1,81 @@
+{
+  "configVersion": 1,
+  "timestamp": 1749904906703,
+  "index": "/KoeHandel/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/KoeHandel/favicon.ico",
+        "/KoeHandel/index.html",
+        "/KoeHandel/main-3C7X5CW3.js",
+        "/KoeHandel/manifest.webmanifest",
+        "/KoeHandel/styles-KQ5DP2G7.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/KoeHandel/assets/cow_skin_pattern.jpg",
+        "/KoeHandel/assets/front-image.jpg",
+        "/KoeHandel/icons/icon-128x128.png",
+        "/KoeHandel/icons/icon-144x144.png",
+        "/KoeHandel/icons/icon-152x152.png",
+        "/KoeHandel/icons/icon-192x192.png",
+        "/KoeHandel/icons/icon-384x384.png",
+        "/KoeHandel/icons/icon-512x512.png",
+        "/KoeHandel/icons/icon-72x72.png",
+        "/KoeHandel/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/KoeHandel/assets/cow_skin_pattern.jpg": "a8d0695dba875bfef9ca10dd439da71407d7707e",
+    "/KoeHandel/assets/front-image.jpg": "63b172a4ff9a31152351b4105e4a7698ee943d3d",
+    "/KoeHandel/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
+    "/KoeHandel/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
+    "/KoeHandel/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
+    "/KoeHandel/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
+    "/KoeHandel/icons/icon-192x192.png": "15c4180454633880d98674aa7394656196c91584",
+    "/KoeHandel/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
+    "/KoeHandel/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
+    "/KoeHandel/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
+    "/KoeHandel/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
+    "/KoeHandel/index.html": "b6794500f176c1b12779f9d8ae9904c6b01e98b1",
+    "/KoeHandel/main-3C7X5CW3.js": "701bd965c236b10430ca61e7c93790cf608ca8bf",
+    "/KoeHandel/manifest.webmanifest": "7d839920e2456ec36797bc41279827da099cb153",
+    "/KoeHandel/styles-KQ5DP2G7.css": "1a42d6f62081f9a754d56d3e20db12fa9ea913f5"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
