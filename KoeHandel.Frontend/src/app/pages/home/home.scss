@@ -74,10 +74,17 @@ img {
   font-size: 30px;
   line-height: 22px;
   text-align: center;
-}
 
-.name-input:focus {
-  outline: none;
-  border-color: $accent-color;
-  background-color: lighten($background-color, 5%);
+  
+  input {
+    text-align: center;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: $accent-color;
+  }
 }
