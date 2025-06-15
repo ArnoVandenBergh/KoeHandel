@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1749978451818,
+  "timestamp": 1749982207355,
   "index": "/KoeHandel/index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "/KoeHandel/favicon.ico",
         "/KoeHandel/index.html",
-        "/KoeHandel/main-3C7X5CW3.js",
+        "/KoeHandel/main-HJGWC7JS.js",
         "/KoeHandel/manifest.webmanifest",
         "/KoeHandel/styles-KQ5DP2G7.css"
       ],
@@ -54,8 +54,8 @@
     "/KoeHandel/icons/icon-512x512.png": "5bd69dbb562642ae662fbcfa7063d039179fe3ae",
     "/KoeHandel/icons/icon-72x72.png": "f5eac160b943915db6614456e0466e41643b019e",
     "/KoeHandel/icons/icon-96x96.png": "c234797669cb84d795274c278481d0d2857a51f2",
-    "/KoeHandel/index.html": "b6794500f176c1b12779f9d8ae9904c6b01e98b1",
-    "/KoeHandel/main-3C7X5CW3.js": "701bd965c236b10430ca61e7c93790cf608ca8bf",
+    "/KoeHandel/index.html": "91d0c6f5b9f3e91a2182285363811158b98f4f25",
+    "/KoeHandel/main-HJGWC7JS.js": "6861f5f8553e8bc417172076f22c0f899d7af93d",
     "/KoeHandel/manifest.webmanifest": "9ee212dc060cc57e2c905b90f9edf804a3b0dfb7",
     "/KoeHandel/styles-KQ5DP2G7.css": "1a42d6f62081f9a754d56d3e20db12fa9ea913f5"
   },
