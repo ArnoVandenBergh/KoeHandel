@@ -1,6 +1,6 @@
 {
-  "name": "KoeHandel.Frontend",
-  "short_name": "KoeHandel.Frontend",
+  "name": "Koe Handel",
+  "short_name": "Koe Handel",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

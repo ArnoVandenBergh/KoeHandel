@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1749978206600,
+  "timestamp": 1749978451818,
   "index": "/KoeHandel/index.html",
   "assetGroups": [
     {
@@ -56,7 +56,7 @@
     "/KoeHandel/icons/icon-96x96.png": "c234797669cb84d795274c278481d0d2857a51f2",
     "/KoeHandel/index.html": "b6794500f176c1b12779f9d8ae9904c6b01e98b1",
     "/KoeHandel/main-3C7X5CW3.js": "701bd965c236b10430ca61e7c93790cf608ca8bf",
-    "/KoeHandel/manifest.webmanifest": "7d839920e2456ec36797bc41279827da099cb153",
+    "/KoeHandel/manifest.webmanifest": "9ee212dc060cc57e2c905b90f9edf804a3b0dfb7",
     "/KoeHandel/styles-KQ5DP2G7.css": "1a42d6f62081f9a754d56d3e20db12fa9ea913f5"
   },
   "navigationUrls": [
