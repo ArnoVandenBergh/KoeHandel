@@ -1,13 +1,13 @@
-@import '../../../assets/styles/abstracts/variables';
+@use '../../../assets/styles/abstracts/variables';
 
 
 h1 {
   margin: 0;
-  color: $linework-color;
-  background-color: $background-color;
+  color: variables.$linework-color;
+  background-color: variables.$background-color;
   border-radius: 12px;
   padding: 12px 12px;
   cursor: pointer;
-  border: 5px solid $linework-color;
+  border: 5px solid variables.$linework-color;
   width: 100%;
 }

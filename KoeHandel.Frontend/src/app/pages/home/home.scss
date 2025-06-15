@@ -1,4 +1,4 @@
-@import '../../../assets/styles/abstracts/variables';
+@use '../../../assets/styles/abstracts/variables';
 
 
 :host {
@@ -35,23 +35,23 @@ img {
     object-fit: cover;
     /* Ensures the image is scaled to fit and centered */
     border-radius: 12px;
-    border: 5px solid $linework-color;
+    border: 5px solid variables.$linework-color;
 }
 
 .title-box {
     margin:  0 0 10px 0;
     font-weight: bold;
+    text-align: center;
     text-transform: uppercase;
     letter-spacing: 2px;
     text-shadow:
-    -3px -8px 0 $linework-color,
-     3px -8px 0 $linework-color,
-    -3px  8px 0 $linework-color,
-     3px  8px 0 $linework-color;
+    -3px -8px 0 variables.$linework-color,
+     3px -8px 0 variables.$linework-color,
+    -3px  8px 0 variables.$linework-color,
+     3px  8px 0 variables.$linework-color;
      * {
          font-size: 50px;
      }
-     text-align: center;
 }
 
 .title-first {
@@ -63,11 +63,11 @@ img {
 }
 
 .name-input {
-  color: $linework-color;
-  background-color: $background-color;
+  color: variables.$linework-color;
+  background-color: variables.$background-color;
   border-radius: 12px;
   padding: 12px 12px;
-  border: 5px solid $linework-color;
+  border: 5px solid variables.$linework-color;
   width: 100%;
   font-size: 30px;
   line-height: 22px;
@@ -83,6 +83,6 @@ img {
   
   input:focus {
     outline: none;
-    border-color: $accent-color;
+    border-color: variables.$accent-color;
   }
 }
