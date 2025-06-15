@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1749904906703,
+  "timestamp": 1749978206600,
   "index": "/KoeHandel/index.html",
   "assetGroups": [
     {
@@ -45,15 +45,15 @@
   "hashTable": {
     "/KoeHandel/assets/cow_skin_pattern.jpg": "a8d0695dba875bfef9ca10dd439da71407d7707e",
     "/KoeHandel/assets/front-image.jpg": "63b172a4ff9a31152351b4105e4a7698ee943d3d",
-    "/KoeHandel/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
-    "/KoeHandel/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
-    "/KoeHandel/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
-    "/KoeHandel/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
-    "/KoeHandel/icons/icon-192x192.png": "15c4180454633880d98674aa7394656196c91584",
-    "/KoeHandel/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
-    "/KoeHandel/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
-    "/KoeHandel/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
-    "/KoeHandel/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
+    "/KoeHandel/favicon.ico": "9aa37c492f0f4446ff5742d6727fdf949765c316",
+    "/KoeHandel/icons/icon-128x128.png": "af7a1b672fe10d51014f5c8d96b8543a47d55802",
+    "/KoeHandel/icons/icon-144x144.png": "155248b550d516ead109f22a94bc72467e4f1bb2",
+    "/KoeHandel/icons/icon-152x152.png": "82913a7937119e8a5ae3e917a414e077bb5ac74c",
+    "/KoeHandel/icons/icon-192x192.png": "7756090bed1c2b3a505a9e470981f7e50eae9863",
+    "/KoeHandel/icons/icon-384x384.png": "353ba0552702e12772c530d170b6c722172a7f2e",
+    "/KoeHandel/icons/icon-512x512.png": "5bd69dbb562642ae662fbcfa7063d039179fe3ae",
+    "/KoeHandel/icons/icon-72x72.png": "f5eac160b943915db6614456e0466e41643b019e",
+    "/KoeHandel/icons/icon-96x96.png": "c234797669cb84d795274c278481d0d2857a51f2",
     "/KoeHandel/index.html": "b6794500f176c1b12779f9d8ae9904c6b01e98b1",
     "/KoeHandel/main-3C7X5CW3.js": "701bd965c236b10430ca61e7c93790cf608ca8bf",
     "/KoeHandel/manifest.webmanifest": "7d839920e2456ec36797bc41279827da099cb153",
