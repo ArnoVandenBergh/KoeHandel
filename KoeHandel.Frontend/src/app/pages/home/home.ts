@@ -3,10 +3,11 @@ import { Button } from "../../components/button/button";
 import { Title } from "../../components/title/title";
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Input } from '../../components/input/input';
 
 @Component({
   selector: 'app-home',
-  imports: [Button, FormsModule],
+  imports: [Button, Input],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

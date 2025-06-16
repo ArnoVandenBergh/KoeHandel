@@ -1,0 +1,25 @@
+@use '../../../assets/styles/abstracts/variables';
+
+.name-input {
+  color: variables.$linework-color;
+ background-color: variables.$background-color;
+  border-radius: 12px;
+  padding: 12px 12px;
+  border: 5px solid variables.$linework-color;
+  width: 100%;
+  font-size: 30px;
+  line-height: 22px;
+  text-align: center;
+
+  input {
+    text-align: center;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: variables.$accent-color;
+  }
+}
