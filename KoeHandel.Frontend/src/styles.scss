@@ -1,3 +1,4 @@
+@use 'assets/styles/abstracts/variables';
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Freckle+Face&family=Knewave&display=swap');
 
@@ -22,4 +23,28 @@ app-root {
     font-weight: 400;
     font-style: normal;
     margin: 0;
+}
+
+.form-control {
+  color: variables.$linework-color;
+ background-color: variables.$background-color;
+  border-radius: 12px;
+  padding: 12px 12px;
+  border: 5px solid variables.$linework-color;
+  width: 100%;
+  font-size: 30px;
+  line-height: 22px;
+  text-align: center;
+
+  input {
+    text-align: center;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: variables.$accent-color;
+  }
 }

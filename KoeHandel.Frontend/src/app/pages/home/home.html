@@ -6,7 +6,11 @@
     <img src="./assets/front-image.jpg" alt="">
 </div>
 <div class="bottom-box">
-    <app-input class="w100" label="Naam:" placeholder="Jouw naam" [(value)]="userName"></app-input>
+    <div class="form-control">
+        <label for="input">Naam:</label>
+        <input placeholder="Jouw naam" [(ngModel)]="userName" name="input"
+            id="input" />
+    </div>
     <app-button class="w100" buttonText="Start een spel!" (onClick)="openLobby()" [disabled]="!userName"></app-button>
     <app-button class="w100" buttonText="Join een spel!" [disabled]="!userName"></app-button>
 </div>
