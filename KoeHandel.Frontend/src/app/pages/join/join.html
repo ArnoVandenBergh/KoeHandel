@@ -1,0 +1,7 @@
+<div class="join-container">
+    <div class="form-control">
+      <label for="gameId">Spel ID:</label>
+      <input placeholder="Vul het spel ID in" [(ngModel)]="gameId" name="gameId" id="gameId" type="number"/>
+    </div>
+    <app-button buttonText="Join het spel!" [disabled]="!gameId" (onClick)="joinGame()"></app-button>
+</div>

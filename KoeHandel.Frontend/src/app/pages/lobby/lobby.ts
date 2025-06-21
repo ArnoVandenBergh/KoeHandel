@@ -8,6 +8,7 @@ import { AsyncPipe } from '@angular/common';
 import { Container } from '../../components/container/container';
 import { ActivatedRoute } from '@angular/router';
 
+// TODO: Add logic to distinct between people starting a new game and joining an existing one
 @Component({
   selector: 'app-lobby',
   imports: [Title, Loading, AsyncPipe, Container],

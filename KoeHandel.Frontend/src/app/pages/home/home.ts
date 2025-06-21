@@ -23,6 +23,11 @@ export class Home {
     this.router.navigate(['lobby'], { queryParams: { name: this.userName } });
   }
 
+  openJoin() {
+    this.saveUserName();
+    this.router.navigate(['join'], { queryParams: { name: this.userName } });
+  }
+
   private saveUserName() {
     localStorage.setItem('userName', this.userName);
   }
