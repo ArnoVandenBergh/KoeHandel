@@ -14,4 +14,8 @@ export class GameService {
   public startNewGame(playerName: string): Observable<NewGame> {
     return this._http.post<NewGame>(`${BASE_URL}/games`, { playerName });
   }
+
+  public getGameById(gameId: string): Observable<NewGame> {
+    return this._http.get<NewGame>(`${BASE_URL}/games/${gameId}`);
+  }
 }

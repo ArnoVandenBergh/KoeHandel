@@ -1,4 +1,6 @@
-﻿namespace KoeHandel.API.Models.Game
+﻿using KoeHandel.Domain;
+
+namespace KoeHandel.API.Models.Game
 {
     public class CreateGameRequest
     {
@@ -9,6 +11,7 @@
     {
         public required int GameId { get; set; }
         public List<NewPlayerResponse> Players { get; set; } = [];
+        public required GameState GameState { get; set; }
     }
 
     public class NewPlayerResponse

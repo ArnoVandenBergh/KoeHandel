@@ -26,16 +26,21 @@ namespace KoeHandel.API.Controllers
 
         // GET: api/Games/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetGame(int id)
+        public async Task<ActionResult<NewGameResponse>> GetGame(int id)
         {
-            var game = await _context.Games.FindAsync(id);
+            var game = await _context.Games.Include(g => g.Players).Where(g => g.Id == id).FirstOrDefaultAsync();
 
             if (game == null)
             {
                 return NotFound();
             }
 
-            return game;
+            return new NewGameResponse()
+            {
+                GameId = game.Id,
+                Players = game.Players.Select(p => new NewPlayerResponse() { Id = p.Id, Name = p.Name }).ToList(),
+                GameState = game.State
+            };
         }
 
         // PUT: api/Games/5
@@ -87,7 +92,8 @@ namespace KoeHandel.API.Controllers
             var response = new NewGameResponse
             {
                 GameId = game.Id,
-                Players = [new() { Id = player.Id, Name = player.Name }]
+                Players = [new() { Id = player.Id, Name = player.Name }],
+                GameState = game.State
             };
 
             return CreatedAtAction("GetGame", new { id = game.Id }, response);
